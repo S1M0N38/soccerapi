@@ -1,0 +1,15 @@
+{"italy": {
+    "id": 31,
+    "name":"italy",
+    "leagues": {
+        "serie_a": {
+            "id": 67061,
+            "name":"serie_a"
+            },
+        "serie_b": {
+            "id": 67065,
+            "name":"serie_b"
+            }
+        }
+    }
+}
