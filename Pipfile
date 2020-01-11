@@ -12,6 +12,7 @@ codacy-coverage = "*"
 
 [packages]
 api = {editable = true,path = "."}
+httpx = "*"
 
 [requires]
 python_version = "3.7"
