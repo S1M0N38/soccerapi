@@ -10,10 +10,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v1
+    - uses: dschep/install-pipenv-action@v1
     - name: Install dependencies
-      run: |
-        pip install --upgrade pip pipenv
-        pipenv sync --dev
+      run: pipenv sync --dev
     - name: Run test
       run: pipenv run pytest
     - name: Coverage report
