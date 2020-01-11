@@ -8,6 +8,7 @@ black = "*"
 pytest = "*"
 twine = "*"
 pytest-cov = "*"
+codacy-coverage = "*"
 
 [packages]
 api = {editable = true,path = "."}
