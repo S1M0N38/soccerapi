@@ -18,4 +18,4 @@ jobs:
     - name: Run test
       run: pipenv run pytest
     - name: Coverage report
-      run: pipenv run python-codacy-coverage -r coverage.xml
+      run: pipenv run python-codacy-coverage -r coverage.xml -t ${{ secrets.CODACY_PROJECT_TOKEN }}
