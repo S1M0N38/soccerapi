@@ -1,6 +1,22 @@
+import json
+import os
+from typing import List, Tuple
+
 import pytest
 
 from api import Api888Sport as API
+
+
+def competitions() -> List[Tuple[str, str]]:
+    competitions = []
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    table_path = os.path.join(base_dir, 'api', f'888sport.json')
+    with open(table_path) as f:
+        table = json.load(f)
+    for country, value in table.items():
+        for league in value['leagues']:
+            competitions.append((country, league))
+    return competitions
 
 
 class TestAPI:
@@ -21,3 +37,9 @@ class TestAPI:
         country, league = api._country_league('italy', 'serie_a')
         assert country
         assert league
+
+    @pytest.mark.parametrize('country,league', competitions())
+    def test_odds(self, api, country, league):
+        odds = api.odds('italy', 'serie_a')
+        print(len(odds))
+        assert odds
