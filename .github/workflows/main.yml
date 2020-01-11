@@ -14,7 +14,7 @@ jobs:
         python-version: '3.7'
     - uses: dschep/install-pipenv-action@v1
     - name: Install dependencies
-      run: pipenv install --dev
+      run: pipenv install --dev --pre
     - name: Run test
       run: pipenv run pytest
     - name: Coverage report
