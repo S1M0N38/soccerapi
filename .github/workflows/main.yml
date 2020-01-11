@@ -1,0 +1,21 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+    - uses: dschep/install-pipenv-action@v1
+    - name: Install dependencies
+      run: pipenv sync --dev
+    - name: Run test
+      run: pipenv run pytest
+    - name: Coverage report
+      run: pipenv run python-codacy-coverage -r coverage.xml
