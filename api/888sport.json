@@ -27,6 +27,20 @@
             }
         }
     },
+    "germany":{
+        "id":30,
+        "name":"germany",
+        "leagues":{
+            "bundesliga":{
+                "id":66509,
+                "name":"bundesliga"
+            },
+            "bundesliga_2":{
+                "id":66887,
+                "name":"2__bundesliga"
+            }
+        }
+    },
     "italy":{
         "id":31,
         "name":"italy",
@@ -38,6 +52,20 @@
             "serie_b":{
                 "id":67065,
                 "name":"serie_b"
+            }
+        }
+    },
+    "spain":{
+        "id":32,
+        "name":"spain",
+        "leagues":{
+            "la_liga":{
+                "id":66633,
+                "name":"la_liga"
+            },
+            "la_liga_2":{
+                "id":67379,
+                "name":"la_liga_2"
             }
         }
     }
