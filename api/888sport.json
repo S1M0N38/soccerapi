@@ -1,14 +1,43 @@
-{"italy": {
-    "id": 31,
-    "name":"italy",
-    "leagues": {
-        "serie_a": {
-            "id": 67061,
-            "name":"serie_a"
+{
+    "england":{
+        "id":1,
+        "name":"england",
+        "leagues":{
+            "premier_league":{
+                "id":66441,
+                "name":"premier_league"
             },
-        "serie_b": {
-            "id": 67065,
-            "name":"serie_b"
+            "championship":{
+                "id":66825,
+                "name":"the_championship"
+            }
+        }
+    },
+    "france":{
+        "id":7,
+        "name":"france",
+        "leagues":{
+            "ligue_1":{
+                "id":66881,
+                "name":"ligue_1"
+            },
+            "ligue_2":{
+                "id":66879,
+                "name":"ligue_2"
+            }
+        }
+    },
+    "italy":{
+        "id":31,
+        "name":"italy",
+        "leagues":{
+            "serie_a":{
+                "id":67061,
+                "name":"serie_a"
+            },
+            "serie_b":{
+                "id":67065,
+                "name":"serie_b"
             }
         }
     }
