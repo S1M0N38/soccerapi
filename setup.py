@@ -114,6 +114,7 @@ setup(
     # },
     install_requires=REQUIRED,
     extras_require=EXTRAS,
+    data_files=[('soccerapi', ['soccerapi/api/*.json'])],
     include_package_data=True,
     license='MIT',
     classifiers=[
