@@ -28,7 +28,7 @@ cd soccerapi && python setup.py
 
 ## Usage
 
-Import the *soccerapi* bookmaker, define the api varibale, reuquest the odds.
+Import the *soccerapi* bookmaker, define the *api* varibale, reuquest the *odds*.
 
 ```python
 from soccerapi.api import Api888Sport
