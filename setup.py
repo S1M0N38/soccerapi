@@ -18,12 +18,10 @@ URL = 'https://github.com/S1M0N38/soccer-api'
 EMAIL = 'bertolottosimone@gmail.com'
 AUTHOR = 'S1M0N38'
 REQUIRES_PYTHON = '>=3.7.0'
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 # What packages are required for this module to be executed?
-REQUIRED = [
-    'httpx'
-]
+REQUIRED = ['httpx']
 
 # What packages are optional?
 EXTRAS = {
@@ -107,7 +105,7 @@ setup(
     url=URL,
     # packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     # If your package is a single module, use this instead of 'packages':
-    py_modules=['api'],
+    py_modules=['soccerapi'],
     # entry_points={
     #     'console_scripts': ['mycli=mymodule:cli'],
     # },
@@ -125,5 +123,5 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     # $ setup.py publish support.
-    cmdclass={'upload': UploadCommand,},
+    cmdclass={'upload': UploadCommand},
 )

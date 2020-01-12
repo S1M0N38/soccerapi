@@ -4,13 +4,13 @@ from typing import List, Tuple
 
 import pytest
 
-from api import Api888Sport as API
+from soccerapi import Api888Sport as API
 
 
 def competitions() -> List[Tuple[str, str]]:
     competitions = []
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    table_path = os.path.join(base_dir, 'api', '888sport.json')
+    table_path = os.path.join(base_dir, 'soccerapi', '888sport.json')
     with open(table_path) as f:
         table = json.load(f)
     for country, value in table.items():
