@@ -21,7 +21,7 @@ Keep it simple. Simple API, simple http requests, few dependencies. In the past
 I have try to build some heavy framework able to scraping site (using selenium
 able to handle complex JavaScript): was a unmaintainable nightmare.
 
-## :bulb: The documentation
+## :blue_book: The documentation
 
 The [documentation](https://s1m0n38.github.io/soccerapi/#/) contain all the
 useful information to use this API at its best. Read it carefully.
