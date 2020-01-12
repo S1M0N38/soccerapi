@@ -18,7 +18,7 @@ URL = 'https://github.com/S1M0N38/soccer-api'
 EMAIL = 'bertolottosimone@gmail.com'
 AUTHOR = 'S1M0N38'
 REQUIRES_PYTHON = '>=3.7.0'
-VERSION = '0.1.1'
+VERSION = None
 
 # What packages are required for this module to be executed?
 REQUIRED = ['httpx']
@@ -105,7 +105,7 @@ setup(
     url=URL,
     # packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     # If your package is a single module, use this instead of 'packages':
-    py_modules=['soccerapi'],
+    py_modules=['soccerapi.api'],
     # entry_points={
     #     'console_scripts': ['mycli=mymodule:cli'],
     # },
