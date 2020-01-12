@@ -1,4 +1,4 @@
-# [Api888sport](http://888sport.com/)
+# [Api888Sport](http://888sport.com/)
 ## england
 - [premier_league](https://s5.sir.sportradar.com/888sport/en/1/season/66441)
 - [championship](https://s5.sir.sportradar.com/888sport/en/1/season/66825)
