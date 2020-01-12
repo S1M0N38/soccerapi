@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from typing import Dict, List, Tuple
@@ -43,27 +44,28 @@ class Api888Sport:
         return country, league
 
     @staticmethod
-    def _full_time_result_under_over(data: Dict) -> List:
+    def _full_time_result(data: Dict) -> List:
         """ Parse the raw json requests for full_time_result & under_over """
 
         odds = []
         for event in data['events']:
             if event['event']['state'] == 'STARTED':
                 continue
+            try:
+                full_time_result = {
+                    '1': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    'X': event['betOffers'][0]['outcomes'][1].get('odds'),
+                    '2': event['betOffers'][0]['outcomes'][2].get('odds'),
+                }
+            except IndexError:
+                full_time_result = None
+
             odds.append(
                 {
                     'time': event['event']['start'],
                     'home_team': event['event']['homeName'],
                     'away_team': event['event']['awayName'],
-                    'full_time_resut': {
-                        '1': event['betOffers'][0]['outcomes'][0]['odds'],
-                        'X': event['betOffers'][0]['outcomes'][1]['odds'],
-                        '2': event['betOffers'][0]['outcomes'][2]['odds'],
-                    },
-                    'under_over': {
-                        'under': event['betOffers'][1]['outcomes'][1]['odds'],
-                        'over': event['betOffers'][1]['outcomes'][0]['odds'],
-                    },
+                    'full_time_resut': full_time_result,
                 }
             )
         return odds
@@ -76,15 +78,19 @@ class Api888Sport:
         for event in data['events']:
             if event['event']['state'] == 'STARTED':
                 continue
+            try:
+                both_teams_to_score = {
+                    'yes': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    'no': event['betOffers'][0]['outcomes'][1].get('odds'),
+                }
+            except IndexError:
+                both_teams_to_score = None
             odds.append(
                 {
                     'time': event['event']['start'],
                     'home_team': event['event']['homeName'],
                     'away_team': event['event']['awayName'],
-                    'both_teams_to_score': {
-                        'yes': event['betOffers'][0]['outcomes'][0]['odds'],
-                        'no': event['betOffers'][0]['outcomes'][1]['odds'],
-                    },
+                    'both_teams_to_score': both_teams_to_score,
                 }
             )
         return odds
@@ -97,38 +103,64 @@ class Api888Sport:
         for event in data['events']:
             if event['event']['state'] == 'STARTED':
                 continue
+            try:
+                double_chance = {
+                    '1X': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    '12': event['betOffers'][0]['outcomes'][1].get('odds'),
+                    '2X': event['betOffers'][0]['outcomes'][2].get('odds'),
+                }
+            except IndexError:
+                double_chance = None
             odds.append(
                 {
                     'time': event['event']['start'],
                     'home_team': event['event']['homeName'],
                     'away_team': event['event']['awayName'],
-                    'double_chance': {
-                        '1X': event['betOffers'][0]['outcomes'][0]['odds'],
-                        '12': event['betOffers'][0]['outcomes'][1]['odds'],
-                        '2X': event['betOffers'][0]['outcomes'][2]['odds'],
-                    },
+                    'double_chance': double_chance,
                 }
             )
         return odds
 
-    def odds(self, country: str, league: str, market: str = 'US') -> Dict:
+    @staticmethod
+    async def _request(url: str, params: Dict = {}, market: str = 'US') -> Dict:
+        """ Make https requetst base on params <-> bet type """
+
+        params = {'lang': 'en_US', 'market': market, **params}
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, params=params)
+            resp.raise_for_status()
+        return resp.json()
+
+    async def _requests(self, country: str, league: str, market: str = 'US'):
+        """ Gather all requests in order to parallelize them """
+
+        base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888it/listView/football'
+        url = '/'.join([base_url, country, league]) + '.json'
+        return await asyncio.gather(
+            # full_time_result
+            self._request(url, {'category': 12579}),
+            # both_teams_to_score
+            self._request(url, {'category': 11942}),
+            # double_chance
+            self._request(url, {'category': 12220}),
+            # add here other bet type and then write the parser
+        )
+
+    def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
         """ Get the odds for the contry-league competion as a python dict """
 
-        base_params = {'lang': 'en_US', 'market': market}
-        base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888it/listView/football'
+        # Convert to standard country - league names
         country, league = self._country_league(country, league)
-        url = '/'.join([base_url, country, league]) + '.json'
 
-        with httpx.Client(params=base_params) as client:
-            odds = [
-                self._full_time_result_under_over(
-                    client.get(url, params={'useCombined': True}).json()
-                ),
-                self._both_teams_to_score(
-                    client.get(url, params={'category': 11942}).json()
-                ),
-                self._double_chance(
-                    client.get(url, params={'category': 12220}).json()
-                ),
-            ]
+        # start request in async manner
+        odds = asyncio.get_event_loop().run_until_complete(
+            self._requests(country, league, market)
+        )
+
+        # parse json response
+        odds = [
+            self._full_time_result(odds[0]),
+            self._both_teams_to_score(odds[1]),
+            self._double_chance(odds[2]),
+        ]
         return [{**i, **j, **k} for i, j, k in zip(*odds)]
