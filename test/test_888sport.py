@@ -40,6 +40,5 @@ class TestAPI:
 
     @pytest.mark.parametrize('country,league', competitions())
     def test_odds(self, api, country, league):
-        odds = api.odds('italy', 'serie_a')
-        print(len(odds))
+        odds = api.odds(country, league)
         assert odds
