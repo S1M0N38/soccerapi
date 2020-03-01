@@ -1,46 +1,16 @@
-import json
-import os
 from typing import Dict, List, Tuple
 
 import requests
 
+from .base import ApiBase
 
-class Api888Sport:
+
+class Api888Sport(ApiBase):
+    """ The ApiBase implementation of 888sport.com """
+
     def __init__(self):
         self.name = '888sport'
         self.table = self._read_table()
-
-    def _read_table(self) -> Dict:
-        """ Read json table that store the relation between standard names and
-        bookmaker names, ids and other. File name is {bookmaker}.json """
-
-        here = os.path.dirname(__file__)
-        table_path = os.path.join(here, f'{self.name}.json')
-        with open(table_path) as f:
-            table = json.load(f)
-        return table
-
-    def _country_league(self, country: str, league: str) -> Tuple[str, str]:
-        """ Get standard country-league and convert to bookmaker country-league
-        using self.table """
-
-        try:
-            country = self.table[country]['name']
-        except KeyError:
-            msg = (
-                f'{country} is not in {self.name} table. '
-                'Check the docs for a list of supported countries.'
-            )
-            raise KeyError(msg)
-        try:
-            league = self.table[country]['leagues'][league]['name']
-        except KeyError:
-            msg = (
-                f'{league} is not in {self.name} table. '
-                'Check the docs for a list of supported leagues.'
-            )
-            raise KeyError(msg)
-        return country, league
 
     @staticmethod
     def _full_time_result(data: Dict) -> List:
@@ -120,7 +90,9 @@ class Api888Sport:
             )
         return odds
 
-    def _requests(self, country: str, league: str, market: str = 'IT') -> Dict:
+    def _requests(
+        self, country: str, league: str, market: str = 'IT'
+    ) -> Tuple[Dict]:
         """ Build URL starting from country and league and request data for
             - full_time_result
             - both_teams_to_score
@@ -142,7 +114,6 @@ class Api888Sport:
         )
 
     def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
-        """ Get the odds for the contry-league competion as a python dict """
 
         # Convert to standard country - league names
         country, league = self._country_league(country, league)
