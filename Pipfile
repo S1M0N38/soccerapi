@@ -12,7 +12,7 @@ black = "*"
 
 [packages]
 api = {editable = true,path = "."}
-httpx = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"

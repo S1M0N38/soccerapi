@@ -1,9 +1,8 @@
-import asyncio
 import json
 import os
 from typing import Dict, List, Tuple
 
-import httpx
+import requests
 
 
 class Api888Sport:
@@ -121,29 +120,25 @@ class Api888Sport:
             )
         return odds
 
-    @staticmethod
-    async def _request(url: str, params: Dict = {}, market: str = 'US') -> Dict:
-        """ Make https requetst base on params <-> bet type """
+    def _requests(self, country: str, league: str, market: str = 'IT') -> Dict:
+        """ Build URL starting from country and league and request data for
+            - full_time_result
+            - both_teams_to_score
+            - double_chance
+        """
 
-        params = {'lang': 'en_US', 'market': market, **params}
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(url, params=params)
-            resp.raise_for_status()
-        return resp.json()
-
-    async def _requests(self, country: str, league: str, market: str = 'US'):
-        """ Gather all requests in order to parallelize them """
-
+        s = requests.Session()
+        base_params = {'lang': 'en_US', 'market': market}
         base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888it/listView/football'
         url = '/'.join([base_url, country, league]) + '.json'
-        return await asyncio.gather(
+
+        return (
             # full_time_result
-            self._request(url, {'category': 12579}),
+            s.get(url, params={**base_params, 'category': 12579}).json(),
             # both_teams_to_score
-            self._request(url, {'category': 11942}),
+            s.get(url, params={**base_params, 'category': 11942}).json(),
             # double_chance
-            self._request(url, {'category': 12220}),
-            # add here other bet type and then write the parser
+            s.get(url, params={**base_params, 'category': 12220}).json(),
         )
 
     def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
@@ -152,10 +147,8 @@ class Api888Sport:
         # Convert to standard country - league names
         country, league = self._country_league(country, league)
 
-        # start request in async manner
-        odds = asyncio.get_event_loop().run_until_complete(
-            self._requests(country, league, market)
-        )
+        # reuquest odds data
+        odds = self._requests(country, league, market)
 
         # parse json response
         odds = [
