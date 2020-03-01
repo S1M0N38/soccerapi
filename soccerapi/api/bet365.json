@@ -1,7 +1,7 @@
 {
     "england": {
         "id": 1,
-        "name": null,
+        "name": "england",
         "leagues": {
             "premier_league": {
                 "id": 66441,
@@ -15,7 +15,7 @@
     },
     "france": {
         "id": 7,
-        "name": null,
+        "name": "france",
         "leagues": {
             "ligue_1": {
                 "id": 66881,
@@ -29,7 +29,7 @@
     },
     "germany": {
         "id": 30,
-        "name": null,
+        "name": "germany",
         "leagues": {
             "bundesliga": {
                 "id": 66509,
@@ -43,7 +43,7 @@
     },
     "italy": {
         "id": 31,
-        "name": null,
+        "name": "italy",
         "leagues": {
             "serie_a": {
                 "id": 67061,
@@ -57,7 +57,7 @@
     },
     "spain": {
         "id": 32,
-        "name": null,
+        "name": "spain",
         "leagues": {
             "la_liga": {
                 "id": 66633,
