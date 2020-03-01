@@ -19,6 +19,7 @@ def competitions() -> List[Tuple[str, str]]:
     return competitions
 
 
+@pytest.mark.Api888Sport
 class TestAPI:
     @pytest.fixture(scope='module')
     def api(self):
