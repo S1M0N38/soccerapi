@@ -21,7 +21,7 @@ REQUIRES_PYTHON = '>=3.7.0'
 VERSION = None
 
 # What packages are required for this module to be executed?
-REQUIRED = ['httpx']
+REQUIRED = ['requests']
 
 # What packages are optional?
 EXTRAS = {
