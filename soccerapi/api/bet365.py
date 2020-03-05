@@ -7,6 +7,8 @@ from .base import ApiBase
 
 
 class ApiBet365(ApiBase):
+    """ The ApiBase implementation of bet365.com """
+
     def __init__(self):
         self.name = 'bet365'
         self.table = self._read_table()
@@ -35,6 +37,8 @@ class ApiBet365(ApiBase):
 
     @staticmethod
     def _get_values(data: str, value: str) -> List:
+        """ Get value from data str XX=... return ...) """
+
         values = []
         for row in data.split('|'):
             if row.startswith('PA'):
@@ -44,6 +48,8 @@ class ApiBet365(ApiBase):
         return values
 
     def _parse_datetimes(self, data: str) -> List:
+        """ Parse datetimes in human readable ftm """
+
         datetimes = []
         values = self._get_values(data, 'BC')
         for dt in values:
@@ -51,6 +57,8 @@ class ApiBet365(ApiBase):
         return datetimes
 
     def _parse_teams(self, data: str) -> List:
+        """ Parse teams names from data str """
+
         home_teams, away_teams = [], []
         values = self._get_values(data, 'NA')
         for teams in values:
@@ -61,6 +69,8 @@ class ApiBet365(ApiBase):
         return home_teams, away_teams
 
     def _parse_odds(self, data: str) -> List:
+        """ Get odds from data str, xoring and convert to decimal """
+
         odds = []
         values = self._get_values(data, 'OD')
         key = self._guess_xor_key(values[0])
@@ -119,6 +129,8 @@ class ApiBet365(ApiBase):
         ...
 
     def _request(self, s: requests.Session, league: str, category: int) -> str:
+        """ Make the single request using the active session """
+
         url = 'https://www.bet365.it/SportsBook.API/web'
         params = (
             ('lid', '1'),
@@ -134,6 +146,7 @@ class ApiBet365(ApiBase):
             - full_time_result
             ...
         """
+
         config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
         cookies = {'aps03': 'ct=97&lng=6'}
         headers = {
@@ -168,6 +181,7 @@ class ApiBet365(ApiBase):
         )
 
     def odds(self, country: str, league: str) -> Dict:
+        """ Get odds from country-league competition """
 
         # Convert to standard country - league names
         country, league = self._country_league(country, league)
