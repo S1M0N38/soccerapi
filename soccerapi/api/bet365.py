@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import Dict, List, Tuple
 
 import requests
@@ -30,7 +30,7 @@ class ApiBet365(ApiBase):
                 if n.isdigit() and d.isdigit():
                     # TODO Collecting data for debug
                     with open('keys.txt', 'a') as f:
-                        f.write(key)
+                        f.write(str(key) + '\t' + chr(key) + '\n')
                     return key
             except ValueError:
                 pass
@@ -66,7 +66,7 @@ class ApiBet365(ApiBase):
     def _parse_odds(self, data: str) -> List:
         odds = []
         values = self._get_values(data, 'OD')
-        key = self._get_xor_key(values[0])
+        key = self._guess_xor_key(values[0])
         for odd in values:
             n, d = self._xor(odd, key).split('/')
             # TODO Watch out, the conversion between frac and dec
@@ -79,8 +79,8 @@ class ApiBet365(ApiBase):
         """ Parse datetime, home_team, away_team and return list of events """
 
         events = []
-        datetimes = self.parse_datetimes(data)
-        home_teams, away_teams = self.parse_teams(data)
+        datetimes = self._parse_datetimes(data)
+        home_teams, away_teams = self._parse_teams(data)
 
         for dt, home_team, away_team in zip(datetimes, home_teams, away_teams):
             events.append(
@@ -93,8 +93,8 @@ class ApiBet365(ApiBase):
         """ Parse the raw data for full_time_result """
 
         odds = []
-        events = self.parse_events(data)
-        full_time_result = self.parse_odds(data)
+        events = self._parse_events(data)
+        full_time_result = self._parse_odds(data)
         _1s = full_time_result[0::3]
         _Xs = full_time_result[1::3]
         _2s = full_time_result[2::3]
