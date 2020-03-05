@@ -23,14 +23,11 @@ class ApiBet365(ApiBase):
     def _guess_xor_key(self, encoded_msg: str) -> int:
         """ Try different key (int) until the msg is human readable """
 
-        for key in range(150):  # TODO choose more narrow range
+        for key in range(130):
             msg = self._xor(encoded_msg, key)
             try:
                 n, d = msg.split('/')
                 if n.isdigit() and d.isdigit():
-                    # TODO Collecting data for debug
-                    with open('keys.txt', 'a') as f:
-                        f.write(str(key) + '\t' + chr(key) + '\n')
                     return key
             except ValueError:
                 pass
