@@ -19,20 +19,6 @@ def competitions() -> List[Tuple[str, str]]:
     return competitions
 
 
-c = [
-    ('italy', 'serie_a'),
-    ('england', 'championship'),
-    ('france', 'ligue_1'),
-    ('france', 'ligue_2'),
-    ('germany', 'bundesliga'),
-    ('germany', 'bundesliga_2'),
-    ('italy', 'serie_a'),
-    ('italy', 'serie_b'),
-    ('spain', 'la_liga'),
-    ('spain', 'la_liga_2'),
-]
-
-
 @pytest.mark.ApiBet365
 class TestAPI:
     @pytest.fixture(scope='module')
@@ -53,9 +39,7 @@ class TestAPI:
         assert country
         assert league
 
-    # @pytest.mark.parametrize('country,league', competitions())
-    @pytest.mark.parametrize('country,league', c)
+    @pytest.mark.parametrize('country,league', competitions())
     def test_odds(self, api, country, league):
         odds = api.odds(country, league)
-        print(len(odds[0]))
         assert odds
