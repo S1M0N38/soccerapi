@@ -97,7 +97,7 @@ class ApiBet365(ApiBase):
         return events
 
     def _full_time_result(self, data: str) -> List:
-        """ Parse the raw data for full_time_result """
+        """ Parse the raw data for full_time_result [13]"""
 
         odds = []
         events = self._parse_events(data)
@@ -113,10 +113,21 @@ class ApiBet365(ApiBase):
 
         return odds
 
-    @staticmethod
-    def _both_teams_to_score():
-        # TODO
-        ...
+    def _both_teams_to_score(self, data: str) -> List:
+        """ Parse the raw data for both_teams_to_score [170]"""
+
+        odds = []
+        events = self._parse_events(data)
+        full_time_result = self._parse_odds(data)
+        yess = full_time_result[0::2]
+        nos = full_time_result[1::2]
+
+        for event, yes, no in zip(events, yess, nos):
+            odds.append(
+                {**event, 'both_teams_to_score': {'yes': yes, 'no': no}}
+            )
+
+        return odds
 
     @staticmethod
     def _double_chance():
@@ -175,7 +186,7 @@ class ApiBet365(ApiBase):
             # both_teams_to_score
             self._request(s, league, 170),
             # double_chance
-            self._request(s, league, 195),
+            # self._request(s, league, 195),
             # under_over
             # self._request(s, league, 56),
         )
@@ -192,8 +203,6 @@ class ApiBet365(ApiBase):
         # parse json response
         odds = [
             self._full_time_result(odds[0]),
+            self._both_teams_to_score(odds[0]),
         ]
-        return odds
-        '''
-        return [{**i, **j, **k} for i, j, k in zip(*odds)]
-        '''
+        return [{**i, **j} for i, j in zip(*odds)]

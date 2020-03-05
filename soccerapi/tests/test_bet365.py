@@ -1,3 +1,4 @@
+from pprint import pprint
 import json
 import os
 from typing import List, Tuple
@@ -42,4 +43,5 @@ class TestAPI:
     @pytest.mark.parametrize('country,league', competitions())
     def test_odds(self, api, country, league):
         odds = api.odds(country, league)
+        pprint(odds)
         assert odds
