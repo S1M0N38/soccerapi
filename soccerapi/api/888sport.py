@@ -14,7 +14,7 @@ class Api888Sport(ApiBase):
 
     @staticmethod
     def _full_time_result(data: Dict) -> List:
-        """ Parse the raw json requests for full_time_result & under_over """
+        """ Parse the raw json requests for full_time_result """
 
         odds = []
         for event in data['events']:
@@ -101,7 +101,7 @@ class Api888Sport(ApiBase):
 
         s = requests.Session()
         base_params = {'lang': 'en_US', 'market': market}
-        base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888it/listView/football'
+        base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888/listView/football'
         url = '/'.join([base_url, country, league]) + '.json'
 
         return (
