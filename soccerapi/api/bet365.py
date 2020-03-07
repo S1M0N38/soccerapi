@@ -129,15 +129,22 @@ class ApiBet365(ApiBase):
 
         return odds
 
-    @staticmethod
-    def _double_chance():
-        # TODO
-        ...
+    def _double_chance(self, data: str) -> List:
+        """ Parse the raw data for double_chance [195]"""
 
-    @staticmethod
-    def _under_over():
-        # TODO
-        ...
+        odds = []
+        events = self._parse_events(data)
+        full_time_result = self._parse_odds(data)
+        _1Xs = full_time_result[0::3]
+        _2Xs = full_time_result[1::3]
+        _12s = full_time_result[2::3]
+
+        for event, _1X, _2X, _12 in zip(events, _1Xs, _2Xs, _12s):
+            odds.append(
+                {**event, 'double_chance': {'1X': _1X, '12': _12, '2X': _2X}}
+            )
+
+        return odds
 
     def _request(self, s: requests.Session, league: str, category: int) -> str:
         """ Make the single request using the active session """
@@ -186,7 +193,7 @@ class ApiBet365(ApiBase):
             # both_teams_to_score
             self._request(s, league, 170),
             # double_chance
-            # self._request(s, league, 195),
+            self._request(s, league, 195),
             # under_over
             # self._request(s, league, 56),
         )
@@ -200,9 +207,12 @@ class ApiBet365(ApiBase):
         # reuquest odds data
         odds = self._requests(league)
 
+        print(len(odds))
+
         # parse json response
         odds = [
             self._full_time_result(odds[0]),
-            self._both_teams_to_score(odds[0]),
+            self._both_teams_to_score(odds[1]),
+            self._double_chance(odds[2]),
         ]
-        return [{**i, **j} for i, j in zip(*odds)]
+        return [{**i, **j, **k} for i, j, k in zip(*odds)]
