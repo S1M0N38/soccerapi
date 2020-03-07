@@ -114,6 +114,7 @@ class Api888Sport(ApiBase):
         )
 
     def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
+        """ Get odds from country-league competition """
 
         # Convert to standard country - league names
         country, league = self._country_league(country, league)

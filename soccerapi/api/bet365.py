@@ -162,7 +162,8 @@ class ApiBet365(ApiBase):
     def _requests(self, league: str) -> Tuple[Dict]:
         """ Build URL starting from league (an unique id) and requests data for
             - full_time_result
-            ...
+            - both_teams_to_score
+            - double_chance
         """
 
         config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
