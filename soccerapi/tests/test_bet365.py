@@ -1,16 +1,17 @@
+from pprint import pprint
 import json
 import os
 from typing import List, Tuple
 
 import pytest
 
-from soccerapi.api import Api888Sport as API
+from soccerapi.api import ApiBet365 as API
 
 
 def competitions() -> List[Tuple[str, str]]:
     competitions = []
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    table_path = os.path.join(base_dir, 'api', '888sport.json')
+    table_path = os.path.join(base_dir, 'api', 'bet365.json')
     with open(table_path) as f:
         table = json.load(f)
     for country, value in table.items():
@@ -19,7 +20,7 @@ def competitions() -> List[Tuple[str, str]]:
     return competitions
 
 
-@pytest.mark.Api888Sport
+@pytest.mark.ApiBet365
 class TestAPI:
     @pytest.fixture(scope='module')
     def api(self):
@@ -42,4 +43,5 @@ class TestAPI:
     @pytest.mark.parametrize('country,league', competitions())
     def test_odds(self, api, country, league):
         odds = api.odds(country, league)
+        pprint(odds)
         assert odds

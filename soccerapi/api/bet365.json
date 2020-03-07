@@ -5,11 +5,11 @@
         "leagues": {
             "premier_league": {
                 "id": 66441,
-                "name": "premier_league"
+                "name": "E37628398"
             },
             "championship": {
                 "id": 66825,
-                "name": "the_championship"
+                "name": "E42294894"
             }
         }
     },
@@ -19,11 +19,11 @@
         "leagues": {
             "ligue_1": {
                 "id": 66881,
-                "name": "ligue_1"
+                "name": "E42481795"
             },
             "ligue_2": {
                 "id": 66879,
-                "name": "ligue_2"
+                "name": "E42535862"
             }
         }
     },
@@ -33,11 +33,11 @@
         "leagues": {
             "bundesliga": {
                 "id": 66509,
-                "name": "bundesliga"
+                "name": "E42422049"
             },
             "bundesliga_2": {
                 "id": 66887,
-                "name": "2__bundesliga"
+                "name": "E42422121"
             }
         }
     },
@@ -47,11 +47,11 @@
         "leagues": {
             "serie_a": {
                 "id": 67061,
-                "name": "serie_a"
+                "name": "E42856517"
             },
             "serie_b": {
                 "id": 67065,
-                "name": "serie_b"
+                "name": "E43062117"
             }
         }
     },
@@ -61,11 +61,11 @@
         "leagues": {
             "la_liga": {
                 "id": 66633,
-                "name": "la_liga"
+                "name": "E42493286"
             },
             "la_liga_2": {
                 "id": 67379,
-                "name": "la_liga_2"
+                "name": "E42836645"
             }
         }
     }
