@@ -11,6 +11,7 @@ class Api888Sport(ApiBase):
     def __init__(self):
         self.name = '888sport'
         self.table = self._read_table()
+        self.base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888/listView/football'
 
     @staticmethod
     def _full_time_result(data: Dict) -> List:
@@ -101,8 +102,7 @@ class Api888Sport(ApiBase):
 
         s = requests.Session()
         base_params = {'lang': 'en_US', 'market': market}
-        base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888/listView/football'
-        url = '/'.join([base_url, country, league]) + '.json'
+        url = '/'.join([self.base_url, country, league]) + '.json'
 
         return (
             # full_time_result
