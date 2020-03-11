@@ -6,7 +6,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Soccer API (Application Programming Interface) is a simple wrapper build on top
-of some bookmakers (now only 888sport, bet365) in order to get data about soccer (aka
+of some bookmakers (888sport, bet365 and Unibet) in order to get data about soccer (aka
 football) odds using python commands.
 
 ## ⚽️ The goal
