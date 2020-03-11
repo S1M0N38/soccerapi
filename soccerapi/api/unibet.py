@@ -10,7 +10,9 @@ class ApiUnibet(Api888Sport):
     def __init__(self):
         self.name = 'unibet'
         self.table = self._read_table()
-        self.base_url = 'https://eu-offering.kambicdn.org/offering/v2018/ub/listView/football'
+        self.base_url = (
+            'https://eu-offering.kambicdn.org/offering/v2018/ub/listView/football'
+        )
 
     # 888sport and unibet uses the same CDN (eu-offering.kambicdn)
     # so the requetsting and parsing process is exaclty the same.

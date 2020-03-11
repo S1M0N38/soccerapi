@@ -78,9 +78,7 @@ class UploadCommand(Command):
             pass
 
         self.status('Building Source and Wheel (universal) distribution…')
-        os.system(
-            '{0} setup.py sdist bdist_wheel --universal'.format(sys.executable)
-        )
+        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
 
         self.status('Uploading the package to PyPI via Twine…')
         os.system('twine upload dist/*')
@@ -105,9 +103,7 @@ setup(
     url=URL,
     # packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     # If your package is a single module, use this instead of 'packages':
-    packages=find_packages(
-        exclude=["tests", "*.tests", "*.tests.*", "tests.*"]
-    ),
+    packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     py_modules=['soccerapi.api'],
     # entry_points={
     #     'console_scripts': ['mycli=mymodule:cli'],

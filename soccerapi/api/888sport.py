@@ -11,7 +11,9 @@ class Api888Sport(ApiBase):
     def __init__(self):
         self.name = '888sport'
         self.table = self._read_table()
-        self.base_url = 'https://eu-offering.kambicdn.org/offering/v2018/888/listView/football'
+        self.base_url = (
+            'https://eu-offering.kambicdn.org/offering/v2018/888/listView/football'
+        )
 
     @staticmethod
     def _full_time_result(data: Dict) -> List:
@@ -91,9 +93,7 @@ class Api888Sport(ApiBase):
             )
         return odds
 
-    def _requests(
-        self, country: str, league: str, market: str = 'IT'
-    ) -> Tuple[Dict]:
+    def _requests(self, country: str, league: str, market: str = 'IT') -> Tuple[Dict]:
         """ Build URL starting from country and league and request data for
             - full_time_result
             - both_teams_to_score
