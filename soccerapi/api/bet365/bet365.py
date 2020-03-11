@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 
 import requests
 
-from .base import ApiBase
+from ..base import ApiBase
 
 
 class ApiBet365(ApiBase):
@@ -199,8 +199,6 @@ class ApiBet365(ApiBase):
 
         # reuquest odds data
         odds = self._requests(league)
-
-        print(len(odds))
 
         # parse json response
         odds = [

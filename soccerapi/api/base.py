@@ -14,7 +14,7 @@ class ApiBase(abc.ABC):
         bookmaker names, ids and other. File name is {bookmaker}.json """
 
         here = os.path.dirname(__file__)
-        table_path = os.path.join(here, f'{self.name}.json')
+        table_path = os.path.join(here, self.name, f'{self.name}.json')
         with open(table_path) as f:
             table = json.load(f)
         return table

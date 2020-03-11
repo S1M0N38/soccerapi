@@ -1,4 +1,4 @@
-from .base import ApiKambi
+from ..base import ApiKambi
 
 
 class ApiUnibet(ApiKambi):
