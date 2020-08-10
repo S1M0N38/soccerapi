@@ -60,7 +60,7 @@ class ApiBet365(ApiBase):
         """ Parse teams names from data str """
 
         home_teams, away_teams = [], []
-        values = self._get_values(data, 'NA')
+        values = self._get_values(data, 'FD')
         for teams in values:
             if ' v ' in teams:
                 home_team, away_team = teams.split(' v ')
@@ -106,7 +106,6 @@ class ApiBet365(ApiBase):
 
         for event, _1, _X, _2 in zip(events, _1s, _Xs, _2s):
             odds.append({**event, 'full_time_result': {'1': _1, 'X': _X, '2': _2}})
-
         return odds
 
     def _both_teams_to_score(self, data: str) -> List:
