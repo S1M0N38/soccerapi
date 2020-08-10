@@ -9,6 +9,7 @@ twine = "*"
 pytest-cov = "*"
 codacy-coverage = "*"
 black = "*"
+secretstorage = "*"
 
 [packages]
 api = {editable = true,path = "."}
