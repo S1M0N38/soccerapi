@@ -1,22 +1,26 @@
 import abc
+import csv
 import json
 import os
 from typing import List, Tuple
 
 import pytest
+import requests
 
 from soccerapi.api import Api888Sport, ApiBet365, ApiUnibet
 
 
 def competitions(name: str) -> List[Tuple[str, str]]:
     competitions = []
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    table_path = os.path.join(base_dir, 'api', name, f'{name}.json')
-    with open(table_path) as f:
-        table = json.load(f)
-    for country, value in table.items():
-        for league in value['leagues']:
-            competitions.append((country, league))
+    url = (
+        'https://raw.githubusercontent.com/'
+        'S1M0N38/soccerapi-competitions/master/competitions.csv'
+    )
+    data = requests.get(url).text.splitlines()
+    rows = csv.DictReader(data)
+    for row in rows:
+        if row[name] != '':
+            competitions.append((row['country'], row['league']))
     return competitions
 
 
@@ -26,17 +30,16 @@ class BaseTest(abc.ABC):
         pass
 
     def test_wrong_country(self, api):
-        with pytest.raises(KeyError, match='.*countries'):
-            api._country_league('fake_country', 'serie_a')
+        with pytest.raises(KeyError, match='.*not supported'):
+            api._competition('fake_country', 'serie_a')
 
     def test_wrong_league(self, api):
-        with pytest.raises(KeyError, match='.*leagues'):
-            api._country_league('italy', 'fake_league')
+        with pytest.raises(KeyError, match='.*not supported'):
+            api._competition('italy', 'fake_league')
 
     def test_right_country_league(self, api):
-        country, league = api._country_league('italy', 'serie_a')
-        assert country
-        assert league
+        competition = api._competition('italy', 'serie_a')
+        assert competition
 
 
 @pytest.mark.Api888Sport
