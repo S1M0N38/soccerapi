@@ -1,4 +1,5 @@
 import abc
+import csv
 import json
 import os
 from typing import Dict, List, Tuple
@@ -9,41 +10,46 @@ import requests
 class ApiBase(abc.ABC):
     """ The Abstract Base Class on which every Api[Boolmaker] is based on. """
 
-    def _read_table(self) -> Dict:
-        """ Read json table that store the relation between standard names and
-        bookmaker names, ids and other. File name is {bookmaker}.json """
+    def _load_competitions(self) -> Dict:
+        """ Read .csv from S1M0N38/soccerapi-competitions and create a
+        dictioary of available competitions (not supported league are leave empty '')
+        e.g. {'england-premier_league': '',
+         'england-championship': 'E42294894',
+         'germany-bundesliga_2': 'E42422121'}
+        """
+        competitions = {}
+        url = (
+            'https://raw.githubusercontent.com/'
+            'S1M0N38/soccerapi-competitions/master/competitions.csv'
+        )
+        data = requests.get(url).text.splitlines()
+        rows = csv.DictReader(data)
+        for row in rows:
+            key = f'{row["country"]}-{row["league"]}'
+            competitions[key] = row[self.name]
+        return competitions
 
-        here = os.path.dirname(__file__)
-        table_path = os.path.join(here, self.name, f'{self.name}.json')
-        with open(table_path) as f:
-            table = json.load(f)
-        return table
+    def _competition(self, country: str, league: str) -> str:
+        """ Get standard country and league and return the corresponding
+        competition id. Could be something like 'E42294894' (bet365) or
+        'england/premier_league' (888sport, unibet)."""
 
-    def _country_league(self, country: str, league: str) -> Tuple[str, str]:
-        """ Get standard country-league and convert to bookmaker country-league
-        using self.table """
-
+        competition = f'{country}-{league}'
+        msg = (
+            f'{competition} is not supported for {self.name}. '
+            'Check the docs for a list of supported competitions.'
+        )
         try:
-            country = self.table[country]['name']
+            competition_id = self.competitions[competition]
         except KeyError:
-            msg = (
-                f'{country} is not in {self.name} table. '
-                'Check the docs for a list of supported countries.'
-            )
             raise KeyError(msg)
-        try:
-            league = self.table[country]['leagues'][league]['name']
-        except KeyError:
-            msg = (
-                f'{league} is not in {self.name} table. '
-                'Check the docs for a list of supported leagues.'
-            )
+        if competition_id == '':
             raise KeyError(msg)
-        return country, league
+        return competition_id
 
     @abc.abstractmethod
     def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
-        """ Get the odds from the country-league competiton as a python dict """
+        """ Get the odds from the country-league competition as a python dict """
         pass
 
 
@@ -130,16 +136,15 @@ class ApiKambi(ApiBase):
             )
         return odds
 
-    def _requests(self, country: str, league: str, market: str = 'IT') -> Tuple[Dict]:
+    def _requests(self, competition: str, market: str = 'IT') -> Tuple[Dict]:
         """ Build URL starting from country and league and request data for
             - full_time_result
             - both_teams_to_score
             - double_chance
         """
-
         s = requests.Session()
         base_params = {'lang': 'en_US', 'market': market}
-        url = '/'.join([self.base_url, country, league]) + '.json'
+        url = '/'.join([self.base_url, competition]) + '.json'
 
         return (
             # full_time_result
@@ -153,11 +158,11 @@ class ApiKambi(ApiBase):
     def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
         """ Get odds from country-league competition """
 
-        # Convert to standard country - league names
-        country, league = self._country_league(country, league)
+        # get competition id for country-league
+        competition = self._competition(country, league)
 
         # reuquest odds data
-        odds = self._requests(country, league, market)
+        odds = self._requests(competition, market)
 
         # parse json response
         odds = [
