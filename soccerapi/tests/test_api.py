@@ -38,7 +38,7 @@ class BaseTest(abc.ABC):
             api._competition('italy', 'fake_league')
 
     def test_right_country_league(self, api):
-        competition = api._competition('italy', 'serie_a')
+        competition = api._competition('italy', 'serie_b')
         assert competition
 
 
