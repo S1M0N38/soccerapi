@@ -61,8 +61,10 @@ pipenv shell
 Import the *soccerapi* bookmaker, define the *api* varibale, reuquest the *odds*.
 
 ```python
-from soccerapi.api import Api888Sportaccessible from: ￼ ￼ ￼ ￼ ￼ ￼ ￼ ￼ ￼ ￼ ￼￼ ￼ ￼ ￼ ￼ ￼ ￼ ￼ ￼ ￼
-
+from soccerapi.api import Api888Sport
+# from soccerapi.api import ApiUnibet
+# from soccerapi.api import ApiBet365
+￼  ￼ ￼ ￼ ￼ ￼ ￼
 api = Api888Sport()
 odds = api.odds('italy', 'serie_a')
 
