@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 
 import requests
 
-from ..base import ApiBase
+from .base import ApiBase
 
 
 class ApiBet365(ApiBase):
@@ -11,7 +11,7 @@ class ApiBet365(ApiBase):
 
     def __init__(self):
         self.name = 'bet365'
-        self.table = self._read_table()
+        self.competitions = self._load_competitions()
 
     @staticmethod
     def _xor(msg: str, key: int) -> str:
@@ -90,7 +90,9 @@ class ApiBet365(ApiBase):
         home_teams, away_teams = self._parse_teams(data)
 
         for dt, home_team, away_team in zip(datetimes, home_teams, away_teams):
-            events.append({'time': dt, 'home_team': home_team, 'away_team': away_team})
+            events.append(
+                {'time': dt, 'home_team': home_team, 'away_team': away_team}
+            )
 
         return events
 
@@ -105,7 +107,9 @@ class ApiBet365(ApiBase):
         _2s = full_time_result[2::3]
 
         for event, _1, _X, _2 in zip(events, _1s, _Xs, _2s):
-            odds.append({**event, 'full_time_result': {'1': _1, 'X': _X, '2': _2}})
+            odds.append(
+                {**event, 'full_time_result': {'1': _1, 'X': _X, '2': _2}}
+            )
         return odds
 
     def _both_teams_to_score(self, data: str) -> List:
@@ -118,7 +122,9 @@ class ApiBet365(ApiBase):
         nos = full_time_result[1::2]
 
         for event, yes, no in zip(events, yess, nos):
-            odds.append({**event, 'both_teams_to_score': {'yes': yes, 'no': no}})
+            odds.append(
+                {**event, 'both_teams_to_score': {'yes': yes, 'no': no}}
+            )
 
         return odds
 
@@ -133,24 +139,28 @@ class ApiBet365(ApiBase):
         _12s = full_time_result[2::3]
 
         for event, _1X, _2X, _12 in zip(events, _1Xs, _2Xs, _12s):
-            odds.append({**event, 'double_chance': {'1X': _1X, '12': _12, '2X': _2X}})
+            odds.append(
+                {**event, 'double_chance': {'1X': _1X, '12': _12, '2X': _2X}}
+            )
 
         return odds
 
-    def _request(self, s: requests.Session, league: str, category: int) -> str:
+    def _request(
+        self, s: requests.Session, competition: str, category: int
+    ) -> str:
         """ Make the single request using the active session """
 
         url = 'https://www.bet365.it/SportsBook.API/web'
         params = (
             ('lid', '1'),
             ('zid', '0'),
-            ('pd', f'#AC#B1#C1#D{category}#{league}#F2#'),
+            ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
             ('cid', '97'),
             ('ctid', '97'),
         )
         return s.get(url, params=params).text
 
-    def _requests(self, league: str) -> Tuple[Dict]:
+    def _requests(self, competition: str) -> Tuple[Dict]:
         """ Build URL starting from league (an unique id) and requests data for
             - full_time_result
             - both_teams_to_score
@@ -181,23 +191,23 @@ class ApiBet365(ApiBase):
 
         return (
             # full_time_result
-            self._request(s, league, 13),
+            self._request(s, competition, 13),
             # both_teams_to_score
-            self._request(s, league, 170),
+            self._request(s, competition, 170),
             # double_chance
-            self._request(s, league, 195),
+            self._request(s, competition, 195),
             # under_over
-            # self._request(s, league, 56),
+            # self._request(s, competition, 56),
         )
 
     def odds(self, country: str, league: str) -> Dict:
         """ Get odds from country-league competition """
 
-        # Convert to standard country - league names
-        country, league = self._country_league(country, league)
+        # get competition id for country-league
+        competition = self._competition(country, league)
 
         # reuquest odds data
-        odds = self._requests(league)
+        odds = self._requests(competition)
 
         # parse json response
         odds = [
