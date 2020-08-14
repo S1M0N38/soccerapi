@@ -69,7 +69,7 @@ odds = api.odds('italy', 'serie_a')
 print(odds)
 ```
 
-```json
+```python
 [
   {
     'time': '2020-01-12T19:45:00Z'
@@ -94,19 +94,18 @@ print(odds)
 ```
 
 the *odds* method return a list of next events of the request competition
-(in the example: country='italy' and league='serie_a').
-
-For a complete list of supported bookmakers and releated competitons
-take a look at the [competitons table](https://github.com/S1M0N38/soccerapi-competitions#competitions).
+(in the example: country='italy' and league='serie_a'). For a complete list
+of supported bookmakers and releated competitonstake a look at the
+[competitons table](https://github.com/S1M0N38/soccerapi-competitions#competitions).
 
 ### Country restriction
 
-The regolamentation of online gambling varies from country to country.
-There are differnt versions of the betting site depending of the provenince
-of your http request. Moreover most of bookmakers implement some kind of
-VPN detection that block VPN-http-request. Due to these constrains it's diffcult
-to test soccerapi for worldwide usability. Here is reported some resume of
-bookmaker accecibilty from various country.
+The regulation of online gambling varies from country to country. There are
+differnt versions of the betting site depending of the provenince of your
+http request. Moreover most of bookmakers implement some kind of VPN detection
+that block VPN-http requests. Due to these constrains it's diffcult to test
+soccerapi for worldwide usability. Here is reported some resum of bookmaker
+accecibilty from various country.
 
 |           | bet365 | 888sport / unibet |
 |-----------| :----: | :---------------: |
