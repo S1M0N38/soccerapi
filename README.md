@@ -7,8 +7,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Soccer API (Application Programming Interface) is a simple wrapper build on top
-of some bookmakers (888sport, bet365 and Unibet) in order to get data about soccer (aka
-football) odds using python commands.
+of some bookmakers (888sport, bet365 and Unibet) in order to get data about
+soccer (aka football) odds using python commands.
 
 ## ⚽️ The goal
 
@@ -50,6 +50,7 @@ cd soccerapi
 pip install -e .
 pipenv install --dev
 ```
+
 and then activate the enviroment
 
 ```bash
@@ -111,5 +112,20 @@ accecibilty from various country.
 
 |           | bet365 | 888sport / unibet |
 |-----------| :----: | :---------------: |
-|accessible | :it:   | :us: :canada: :australia: :brazil: :switzerland: :it: :de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland: :india: :singapore: :hong_kong: :new_zealand: :mexico: :romania: |
+|accessible | :it:   | :us: :canada: :australia: :brazil: :switzerland: :it:
+:de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland:
+:india: :singapore: :hong_kong: :new_zealand: :mexico: :romania: |
 |inaccesible|        | :fr: :uk: |
+
+### Contributing
+
+Despite the simple and short code base of soccerapi, this project needs a
+constant maintenance. The relations between competitions _standard names_ (e.g.
+'england' - 'premier_league') and their _ids_ (e.g. 'E5102890',
+'england/premier_league', ...) are store in
+[soccerapi-competitions](https://github.com/S1M0N38/soccerapi-competitions).
+github repository. When a new competition starts or ends, _competitions.csv_
+must be update by adding the new id or by removing the old one. If you see that
+the competitions table is not update you can open a pull request with a modify
+version of _competitions.csv_ (the README.md in soccerapi-competitions is
+auto-update by a pre-push git hook).
