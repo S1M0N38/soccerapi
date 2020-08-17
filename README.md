@@ -121,7 +121,7 @@ Despite the simple and short code base of soccerapi, this project needs a
 constant maintenance. The relations between competitions _standard names_ (e.g.
 'england' - 'premier_league') and their _ids_ (e.g. 'E5102890',
 'england/premier_league', ...) are store in
-[soccerapi-competitions](https://github.com/S1M0N38/soccerapi-competitions).
+[soccerapi-competitions](https://github.com/S1M0N38/soccerapi-competitions)
 github repository. When a new competition starts or ends, _competitions.csv_
 must be update by adding the new id or by removing the old one. If you see that
 the competitions table is not update you can open a pull request with a modify
