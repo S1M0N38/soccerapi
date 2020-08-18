@@ -13,13 +13,16 @@ from soccerapi.api import Api888Sport, ApiBet365, ApiUnibet
 def competitions(name: str) -> List[Tuple[str, str]]:
     competitions = []
     url = (
-        'https://raw.githubusercontent.com/'
-        'S1M0N38/soccerapi-competitions/master/competitions.csv'
+        'https://docs.google.com/spreadsheets/d/'
+        '1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec/'
+        'export?format=csv&'
+        'id=1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec&'
+        'gid=1816911805'
     )
     data = requests.get(url).text.splitlines()
     rows = csv.DictReader(data)
     for row in rows:
-        if row[name] != '':
+        if row[name] != '' and row['country']!= 'test_country':
             competitions.append((row['country'], row['league']))
     return competitions
 
@@ -31,14 +34,14 @@ class BaseTest(abc.ABC):
 
     def test_wrong_country(self, api):
         with pytest.raises(KeyError, match='.*not supported'):
-            api._competition('fake_country', 'serie_a')
+            api._competition('fake_country', 'test_league')
 
     def test_wrong_league(self, api):
         with pytest.raises(KeyError, match='.*not supported'):
-            api._competition('italy', 'fake_league')
+            api._competition('test_country', 'fake_league')
 
     def test_right_country_league(self, api):
-        competition = api._competition('italy', 'serie_b')
+        competition = api._competition('test_country', 'test_league')
         assert competition
 
 

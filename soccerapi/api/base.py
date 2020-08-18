@@ -19,8 +19,11 @@ class ApiBase(abc.ABC):
         """
         competitions = {}
         url = (
-            'https://raw.githubusercontent.com/'
-            'S1M0N38/soccerapi-competitions/master/competitions.csv'
+            'https://docs.google.com/spreadsheets/d/'
+            '1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec/'
+            'export?format=csv&'
+            'id=1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec&'
+            'gid=1816911805'
         )
         data = requests.get(url).text.splitlines()
         rows = csv.DictReader(data)
