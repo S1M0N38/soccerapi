@@ -1,7 +1,5 @@
 import abc
 import csv
-import json
-import os
 from typing import List, Tuple
 
 import pytest
@@ -29,7 +27,7 @@ def competitions(name: str) -> List[Tuple[str, str]]:
 
 class BaseTest(abc.ABC):
     @abc.abstractmethod
-    def api():
+    def api(self):
         pass
 
     def test_wrong_country(self, api):

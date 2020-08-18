@@ -96,7 +96,7 @@ print(odds)
 ]
 ```
 
-the *odds* method return a list of next events of the request competition
+the _odds_ method return a list of next events of the request competition
 (in the example: country='italy' and league='serie_a'). For a complete list
 of supported bookmakers and releated competitonstake a look at the
 [competitons table](https://docs.google.com/spreadsheets/d/e/2PACX-1vTTAsRWCJxQrrrbxpC4s12QwfDRKcmstbc5A1f6VnDSHN1TcTjjRgMMJfhc0dqbfqCw3dTtsCFBg7G_/pubhtml?gid=187969326&single=true).
@@ -113,4 +113,4 @@ accecibilty from various country.
 |           | bet365 | 888sport / unibet |
 |-----------| :----: | :---------------: |
 |accessible | :it:   | :us: :canada: :australia: :brazil: :switzerland: :it: :de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland: :india: :singapore: :hong_kong: :new_zealand: :mexico: :romania:|
-|inaccesible|        | :fr: :uk: |
+|inaccesible|        | :fr: :uk:         |

@@ -1,7 +1,5 @@
 import abc
 import csv
-import json
-import os
 from typing import Dict, List, Tuple
 
 import requests
@@ -51,7 +49,7 @@ class ApiBase(abc.ABC):
         return competition_id
 
     @abc.abstractmethod
-    def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
+    def odds(self, country: str, league: str, **kwargs) -> Dict:
         """ Get the odds from the country-league competition as a python dict """
         pass
 
