@@ -101,6 +101,8 @@ the *odds* method return a list of next events of the request competition
 of supported bookmakers and releated competitonstake a look at the
 [competitons table](https://github.com/S1M0N38/soccerapi-competitions#competitions).
 
+<iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTAsRWCJxQrrrbxpC4s12QwfDRKcmstbc5A1f6VnDSHN1TcTjjRgMMJfhc0dqbfqCw3dTtsCFBg7G_/pubhtml?gid=1816911805&amp;single=true&amp;widget=true&amp;headers=false"></iframe>
+
 ### Country restriction
 
 The regulation of online gambling varies from country to country. There are
