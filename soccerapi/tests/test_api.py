@@ -20,7 +20,7 @@ def competitions(name: str) -> List[Tuple[str, str]]:
     data = requests.get(url).text.splitlines()
     rows = csv.DictReader(data)
     for row in rows:
-        if row[name] != '' and row['country']!= 'test_country':
+        if row[name] != '' and row['country'] != 'test_country':
             competitions.append((row['country'], row['league']))
     return competitions
 
