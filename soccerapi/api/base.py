@@ -49,9 +49,49 @@ class ApiBase(abc.ABC):
         return competition_id
 
     @abc.abstractmethod
-    def odds(self, country: str, league: str, **kwargs) -> Dict:
-        """ Get the odds from the country-league competition as a python dict """
+    def _requests(self, competition: str, **kwargs) -> Tuple:
+        """ Perform requests to site and get data_to_parse """
         pass
+
+    def odds(self, country: str, league: str) -> Dict:
+        """ Get odds from country-league competition """
+
+        # get competition id for country-league
+        competition = self._competition(country, league)
+
+        # reuquest odds data
+        data_to_parse = self._requests(competition)
+
+        odds = []
+
+        for data, parser in zip(data_to_parse, self.parsers):
+            try:
+                odds.append(parser(data))
+            except NoOddsError:
+                # sometimes some odds categories aren't avaiable
+                pass
+
+        for category in odds[1:]:
+            for i, event in enumerate(category):
+                odds[0][i] = {**odds[0][i], **event}
+
+        # If no odds are found the result from:
+        # - Kambi based api is [[], [], []]
+        # - bet365 is []
+        msg = (
+            f'No odds for {country}-{league} have been found. '
+            f'The competition table must be update.'
+        )
+
+        try:
+            odds = odds[0]
+        except IndexError:
+            raise NoOddsError(msg)
+
+        if len(odds) > 0:
+            return odds
+        else:
+            raise NoOddsError(msg)
 
 
 class ApiKambi(ApiBase):
@@ -69,9 +109,12 @@ class ApiKambi(ApiBase):
                 continue
             try:
                 full_time_result = {
-                    '1': event['betOffers'][0]['outcomes'][0].get('odds'),
-                    'X': event['betOffers'][0]['outcomes'][1].get('odds'),
-                    '2': event['betOffers'][0]['outcomes'][2].get('odds'),
+                    '1': event['betOffers'][0]['outcomes'][0].get('odds')
+                    / 1000,
+                    'X': event['betOffers'][0]['outcomes'][1].get('odds')
+                    / 1000,
+                    '2': event['betOffers'][0]['outcomes'][2].get('odds')
+                    / 1000,
                 }
             except IndexError:
                 full_time_result = None
@@ -96,8 +139,10 @@ class ApiKambi(ApiBase):
                 continue
             try:
                 both_teams_to_score = {
-                    'yes': event['betOffers'][0]['outcomes'][0].get('odds'),
-                    'no': event['betOffers'][0]['outcomes'][1].get('odds'),
+                    'yes': event['betOffers'][0]['outcomes'][0].get('odds')
+                    / 1000,
+                    'no': event['betOffers'][0]['outcomes'][1].get('odds')
+                    / 1000,
                 }
             except IndexError:
                 both_teams_to_score = None
@@ -121,9 +166,12 @@ class ApiKambi(ApiBase):
                 continue
             try:
                 double_chance = {
-                    '1X': event['betOffers'][0]['outcomes'][0].get('odds'),
-                    '12': event['betOffers'][0]['outcomes'][1].get('odds'),
-                    '2X': event['betOffers'][0]['outcomes'][2].get('odds'),
+                    '1X': event['betOffers'][0]['outcomes'][0].get('odds')
+                    / 1000,
+                    '12': event['betOffers'][0]['outcomes'][1].get('odds')
+                    / 1000,
+                    '2X': event['betOffers'][0]['outcomes'][2].get('odds')
+                    / 1000,
                 }
             except IndexError:
                 double_chance = None
@@ -156,19 +204,6 @@ class ApiKambi(ApiBase):
             s.get(url, params={**base_params, 'category': 12220}).json(),
         )
 
-    def odds(self, country: str, league: str, market: str = 'IT') -> Dict:
-        """ Get odds from country-league competition """
 
-        # get competition id for country-league
-        competition = self._competition(country, league)
-
-        # reuquest odds data
-        odds = self._requests(competition, market)
-
-        # parse json response
-        odds = [
-            self._full_time_result(odds[0]),
-            self._both_teams_to_score(odds[1]),
-            self._double_chance(odds[2]),
-        ]
-        return [{**i, **j, **k} for i, j, k in zip(*odds)]
+class NoOddsError(Exception):
+    """ No odds are found for the request category. """
