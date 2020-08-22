@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 
 import requests
 
-from .base import ApiBase
+from .base import ApiBase, NoOddsError
 
 
 class ApiBet365(ApiBase):
@@ -12,6 +12,11 @@ class ApiBet365(ApiBase):
     def __init__(self):
         self.name = 'bet365'
         self.competitions = self._load_competitions()
+        self.parsers = [
+            self._full_time_result,
+            self._both_teams_to_score,
+            self._double_chance,
+        ]
 
     @staticmethod
     def _xor(msg: str, key: int) -> str:
@@ -73,13 +78,19 @@ class ApiBet365(ApiBase):
 
         odds = []
         values = self._get_values(data, 'OD')
+        if len(values) == 0:
+            raise NoOddsError
         key = self._guess_xor_key(values[0])
-        for odd in values:
-            n, d = self._xor(odd, key).split('/')
-            # TODO Watch out, the conversion between frac and dec
-            # is not perfect due to rounding
-            decimal_odd = round(int(n) / int(d) + 1, 3)
-            odds.append(decimal_odd)
+        for obfuscated_odd in values:
+            # Event exists but no odds are available
+            if obfuscated_odd == '':
+                odd = None
+            else:
+                n, d = self._xor(obfuscated_odd, key).split('/')
+                # TODO Watch out, the conversion between frac and dec
+                # is not perfect due to rounding
+                odd = round(int(n) / int(d) + 1, 3)
+            odds.append(odd)
         return odds
 
     def _parse_events(self, data: str) -> List:
@@ -199,20 +210,3 @@ class ApiBet365(ApiBase):
             # under_over
             # self._request(s, competition, 56),
         )
-
-    def odds(self, country: str, league: str) -> Dict:
-        """ Get odds from country-league competition """
-
-        # get competition id for country-league
-        competition = self._competition(country, league)
-
-        # reuquest odds data
-        odds = self._requests(competition)
-
-        # parse json response
-        odds = [
-            self._full_time_result(odds[0]),
-            self._both_teams_to_score(odds[1]),
-            self._double_chance(odds[2]),
-        ]
-        return [{**i, **j, **k} for i, j, k in zip(*odds)]
