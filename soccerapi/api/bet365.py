@@ -89,7 +89,7 @@ class ApiBet365(ApiBase):
                 n, d = self._xor(obfuscated_odd, key).split('/')
                 # TODO Watch out, the conversion between frac and dec
                 # is not perfect due to rounding
-                odd = round(int(n) / int(d) + 1, 3)
+                odd = round((int(n) / int(d) + 1) * 1000)
             odds.append(odd)
         return odds
 

@@ -109,12 +109,9 @@ class ApiKambi(ApiBase):
                 continue
             try:
                 full_time_result = {
-                    '1': event['betOffers'][0]['outcomes'][0].get('odds')
-                    / 1000,
-                    'X': event['betOffers'][0]['outcomes'][1].get('odds')
-                    / 1000,
-                    '2': event['betOffers'][0]['outcomes'][2].get('odds')
-                    / 1000,
+                    '1': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    'X': event['betOffers'][0]['outcomes'][1].get('odds'),
+                    '2': event['betOffers'][0]['outcomes'][2].get('odds'),
                 }
             except IndexError:
                 full_time_result = None
@@ -139,10 +136,8 @@ class ApiKambi(ApiBase):
                 continue
             try:
                 both_teams_to_score = {
-                    'yes': event['betOffers'][0]['outcomes'][0].get('odds')
-                    / 1000,
-                    'no': event['betOffers'][0]['outcomes'][1].get('odds')
-                    / 1000,
+                    'yes': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    'no': event['betOffers'][0]['outcomes'][1].get('odds'),
                 }
             except IndexError:
                 both_teams_to_score = None
@@ -166,12 +161,9 @@ class ApiKambi(ApiBase):
                 continue
             try:
                 double_chance = {
-                    '1X': event['betOffers'][0]['outcomes'][0].get('odds')
-                    / 1000,
-                    '12': event['betOffers'][0]['outcomes'][1].get('odds')
-                    / 1000,
-                    '2X': event['betOffers'][0]['outcomes'][2].get('odds')
-                    / 1000,
+                    '1X': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    '12': event['betOffers'][0]['outcomes'][1].get('odds'),
+                    '2X': event['betOffers'][0]['outcomes'][2].get('odds'),
                 }
             except IndexError:
                 double_chance = None
