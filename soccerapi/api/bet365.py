@@ -171,7 +171,7 @@ class ApiBet365(ApiBase):
         )
         return s.get(url, params=params).text
 
-    def _requests(self, competition: str) -> Tuple[Dict]:
+    def _requests(self, competition: str, **kwargs) -> Tuple[Dict]:
         """ Build URL starting from league (an unique id) and requests data for
             - full_time_result
             - both_teams_to_score
