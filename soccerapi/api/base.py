@@ -1,5 +1,5 @@
 import abc
-import csv
+# import csv
 from typing import Dict, List, Tuple
 
 import requests
@@ -8,56 +8,61 @@ import requests
 class ApiBase(abc.ABC):
     """ The Abstract Base Class on which every Api[Boolmaker] is based on. """
 
-    def _load_competitions(self) -> Dict:
-        """ Read .csv from S1M0N38/soccerapi-competitions and create a
-        dictioary of available competitions (not supported league are leave empty '')
-        e.g. {'england-premier_league': '',
-         'england-championship': 'E42294894',
-         'germany-bundesliga_2': 'E42422121'}
-        """
-        competitions = {}
-        url = (
-            'https://docs.google.com/spreadsheets/d/'
-            '1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec/'
-            'export?format=csv&'
-            'id=1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec&'
-            'gid=1816911805'
-        )
-        data = requests.get(url).text.splitlines()
-        rows = csv.DictReader(data)
-        for row in rows:
-            key = f'{row["country"]}-{row["league"]}'
-            competitions[key] = row[self.name]
-        return competitions
+    # def _load_competitions(self) -> Dict:
+    #     """ Read .csv from S1M0N38/soccerapi-competitions and create a
+    #     dictioary of available competitions (not supported league are leave empty '')
+    #     e.g. {'england-premier_league': '',
+    #      'england-championship': 'E42294894',
+    #      'germany-bundesliga_2': 'E42422121'}
+    #     """
+    #     competitions = {}
+    #     url = (
+    #         'https://docs.google.com/spreadsheets/d/'
+    #         '1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec/'
+    #         'export?format=csv&'
+    #         'id=1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec&'
+    #         'gid=1816911805'
+    #     )
+    #     data = requests.get(url).text.splitlines()
+    #     rows = csv.DictReader(data)
+    #     for row in rows:
+    #         key = f'{row["country"]}-{row["league"]}'
+    #         competitions[key] = row[self.name]
+    #     return competitions
 
-    def _competition(self, country: str, league: str) -> str:
-        """ Get standard country and league and return the corresponding
-        competition id. Could be something like 'E42294894' (bet365) or
-        'england/premier_league' (888sport, unibet)."""
+    # def _competition(self, country: str, league: str) -> str:
+    #     """ Get standard country and league and return the corresponding
+    #     competition id. Could be something like 'E42294894' (bet365) or
+    #     'england/premier_league' (888sport, unibet)."""
 
-        competition = f'{country}-{league}'
-        msg = (
-            f'{competition} is not supported for {self.name}. '
-            'Check the docs for a list of supported competitions.'
-        )
-        try:
-            competition_id = self.competitions[competition]
-        except KeyError:
-            raise KeyError(msg)
-        if competition_id == '':
-            raise KeyError(msg)
-        return competition_id
+    #     competition = f'{country}-{league}'
+    #     msg = (
+    #         f'{competition} is not supported for {self.name}. '
+    #         'Check the docs for a list of supported competitions.'
+    #     )
+    #     try:
+    #         competition_id = self.competitions[competition]
+    #     except KeyError:
+    #         raise KeyError(msg)
+    #     if competition_id == '':
+    #         raise KeyError(msg)
+    #     return competition_id
 
     @abc.abstractmethod
     def _requests(self, competition: str, **kwargs) -> Tuple:
         """ Perform requests to site and get data_to_parse """
         pass
 
-    def odds(self, country: str, league: str) -> Dict:
-        """ Get odds from country-league competition """
+    @abc.abstractmethod
+    def competition(self, url: str) -> str:
+        """ Get the competition from url """
+        pass
 
-        # get competition id for country-league
-        competition = self._competition(country, league)
+    def odds(self, url: str) -> Dict:
+        """ Get odds from country-league competition or from url """
+
+        # get competition id using url
+        competition = self.competition(url)
 
         # reuquest odds data
         data_to_parse = self._requests(competition)
@@ -78,10 +83,7 @@ class ApiBase(abc.ABC):
         # If no odds are found the result from:
         # - Kambi based api is [[], [], []]
         # - bet365 is []
-        msg = (
-            f'No odds for {country}-{league} have been found. '
-            f'The competition table must be update.'
-        )
+        msg = f'No odds in {url} have been found.'
 
         try:
             odds = odds[0]
@@ -95,9 +97,9 @@ class ApiBase(abc.ABC):
 
 
 class ApiKambi(ApiBase):
-    """ 888sport, unibet and other use the same CDN (eu-offering.kambicdn)
-     so the requetsting and parsing process is exaclty the same.
-     The only thing that chage is the base_url """
+    """888sport, unibet and other use the same CDN (eu-offering.kambicdn)
+    so the requetsting and parsing process is exaclty the same.
+    The only thing that chage is the base_url"""
 
     @staticmethod
     def _full_time_result(data: Dict) -> List:
@@ -178,10 +180,10 @@ class ApiKambi(ApiBase):
         return odds
 
     def _requests(self, competition: str, market: str = 'IT') -> Tuple[Dict]:
-        """ Build URL starting from country and league and request data for
-            - full_time_result
-            - both_teams_to_score
-            - double_chance
+        """Build URL starting from country and league and request data for
+        - full_time_result
+        - both_teams_to_score
+        - double_chance
         """
         s = requests.Session()
         base_params = {'lang': 'en_US', 'market': market}
