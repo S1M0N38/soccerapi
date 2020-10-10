@@ -44,6 +44,15 @@ urls_888sport = [
     'https://www.888sport.it/#/filter/football/germany/2__bundesliga',  # germany-bundesliga2
 ]
 
+urls_unibet = [
+    'https://www.unibet.com/betting/sports/filter/football/italy/serie_a/matches',  # italy-seria_a
+    'https://www.unibet.com/betting/sports/filter/football/italy/serie_b/matches',  # italy-serie-b
+    'https://www.unibet.com/betting/sports/filter/football/england/premier_league/matches',  # england-premier_league
+    'https://www.unibet.com/betting/sports/filter/football/england/the_championship/matches',  # england-championship
+    'https://www.unibet.com/betting/sports/filter/football/germany/bundesliga/matches',  # germany-bundesliga
+    'https://www.unibet.com/betting/sports/filter/football/germany/2__bundesliga/',  # germany-bundesliga2
+]
+
 
 class BaseTest(abc.ABC):
     @abc.abstractmethod
@@ -85,15 +94,18 @@ class TestApiBet365(BaseTest):
         assert odds
 
 
-# @pytest.mark.ApiUnibet
-# class TestApiUnibet(BaseTest):
-#     name = 'unibet'
-#
-#     @pytest.fixture(scope='module')
-#     def api(self):
-#         yield ApiUnibet()
-#
-#     @pytest.mark.parametrize('country,league', competitions(name))
-#     def test_odds(self, api, country, league):
-#         odds = api.odds(country, league)
-#         assert odds
+@pytest.mark.ApiUnibet
+class TestApiUnibet(BaseTest):
+    name = 'unibet'
+
+    @pytest.fixture(scope='module')
+    def api(self):
+        yield ApiUnibet()
+
+    # TODO add test competition
+
+    @pytest.mark.parametrize('url', urls_unibet)
+    def test_odds(self, api, url):
+        odds = api.odds(url)
+        pprint(odds)
+        assert odds
