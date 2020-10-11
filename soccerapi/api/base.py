@@ -1,5 +1,4 @@
 import abc
-# import csv
 from typing import Dict, List, Tuple
 
 import requests
@@ -8,46 +7,6 @@ import requests
 class ApiBase(abc.ABC):
     """ The Abstract Base Class on which every Api[Boolmaker] is based on. """
 
-    # def _load_competitions(self) -> Dict:
-    #     """ Read .csv from S1M0N38/soccerapi-competitions and create a
-    #     dictioary of available competitions (not supported league are leave empty '')
-    #     e.g. {'england-premier_league': '',
-    #      'england-championship': 'E42294894',
-    #      'germany-bundesliga_2': 'E42422121'}
-    #     """
-    #     competitions = {}
-    #     url = (
-    #         'https://docs.google.com/spreadsheets/d/'
-    #         '1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec/'
-    #         'export?format=csv&'
-    #         'id=1kHFeE1hsiCwzLBNe2gokCOfVDSocc0mcKTF3HEhQ3ec&'
-    #         'gid=1816911805'
-    #     )
-    #     data = requests.get(url).text.splitlines()
-    #     rows = csv.DictReader(data)
-    #     for row in rows:
-    #         key = f'{row["country"]}-{row["league"]}'
-    #         competitions[key] = row[self.name]
-    #     return competitions
-
-    # def _competition(self, country: str, league: str) -> str:
-    #     """ Get standard country and league and return the corresponding
-    #     competition id. Could be something like 'E42294894' (bet365) or
-    #     'england/premier_league' (888sport, unibet)."""
-
-    #     competition = f'{country}-{league}'
-    #     msg = (
-    #         f'{competition} is not supported for {self.name}. '
-    #         'Check the docs for a list of supported competitions.'
-    #     )
-    #     try:
-    #         competition_id = self.competitions[competition]
-    #     except KeyError:
-    #         raise KeyError(msg)
-    #     if competition_id == '':
-    #         raise KeyError(msg)
-    #     return competition_id
-
     @abc.abstractmethod
     def _requests(self, competition: str, **kwargs) -> Tuple:
         """ Perform requests to site and get data_to_parse """
@@ -55,19 +14,17 @@ class ApiBase(abc.ABC):
 
     @abc.abstractmethod
     def competition(self, url: str) -> str:
-        """ Get the competition from url """
+        """ Get the competition from url.
+        First check it validity using regex,then exstract competition from it
+        """
         pass
 
     def odds(self, url: str) -> Dict:
         """ Get odds from country-league competition or from url """
 
-        # get competition id using url
-        competition = self.competition(url)
-
-        # reuquest odds data
-        data_to_parse = self._requests(competition)
-
         odds = []
+        competition = self.competition(url)
+        data_to_parse = self._requests(competition)
 
         for data, parser in zip(data_to_parse, self.parsers):
             try:
@@ -83,23 +40,17 @@ class ApiBase(abc.ABC):
         # If no odds are found the result from:
         # - Kambi based api is [[], [], []]
         # - bet365 is []
-        msg = f'No odds in {url} have been found.'
-
-        try:
-            odds = odds[0]
-        except IndexError:
-            raise NoOddsError(msg)
-
-        if len(odds) > 0:
+        if len(sum(odds, [])) > 0:
             return odds
         else:
+            msg = f'No odds in {url} have been found.'
             raise NoOddsError(msg)
 
 
 class ApiKambi(ApiBase):
     """888sport, unibet and other use the same CDN (eu-offering.kambicdn)
     so the requetsting and parsing process is exaclty the same.
-    The only thing that chage is the base_url"""
+    The only thing that chage is the base_url and the competition method"""
 
     @staticmethod
     def _full_time_result(data: Dict) -> List:
@@ -190,14 +141,14 @@ class ApiKambi(ApiBase):
         url = '/'.join([self.base_url, competition]) + '.json'
 
         return (
-            # full_time_result
+            # full_time_result      12579
             s.get(url, params={**base_params, 'category': 12579}).json(),
-            # both_teams_to_score
+            # both_teams_to_score   11942
             s.get(url, params={**base_params, 'category': 11942}).json(),
-            # double_chance
+            # double_chance         12220
             s.get(url, params={**base_params, 'category': 12220}).json(),
         )
 
 
 class NoOddsError(Exception):
-    """ No odds are found for the request category. """
+    """ No odds are found. """

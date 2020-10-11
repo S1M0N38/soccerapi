@@ -12,7 +12,6 @@ class ApiBet365(ApiBase):
 
     def __init__(self):
         self.name = 'bet365'
-        # self.competitions = self._load_competitions()
         self.parsers = [
             self._full_time_result,
             self._both_teams_to_score,
@@ -202,13 +201,13 @@ class ApiBet365(ApiBase):
         s.get(config_url, cookies=cookies)
 
         return (
-            # full_time_result
+            # full_time_result      13
             self._request(s, competition, 13),
-            # both_teams_to_score
+            # both_teams_to_score   170
             self._request(s, competition, 170),
-            # double_chance
+            # double_chance         195
             self._request(s, competition, 195),
-            # under_over
+            # under_over            56
             # self._request(s, competition, 56),
         )
 
