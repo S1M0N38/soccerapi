@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Dict, List, Tuple
 
@@ -11,7 +12,6 @@ class ApiBet365(ApiBase):
 
     def __init__(self):
         self.name = 'bet365'
-        self.competitions = self._load_competitions()
         self.parsers = [
             self._full_time_result,
             self._both_teams_to_score,
@@ -172,10 +172,10 @@ class ApiBet365(ApiBase):
         return s.get(url, params=params).text
 
     def _requests(self, competition: str, **kwargs) -> Tuple[Dict]:
-        """ Build URL starting from league (an unique id) and requests data for
-            - full_time_result
-            - both_teams_to_score
-            - double_chance
+        """Build URL starting from league (an unique id) and requests data for
+        - full_time_result
+        - both_teams_to_score
+        - double_chance
         """
 
         config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
@@ -201,12 +201,23 @@ class ApiBet365(ApiBase):
         s.get(config_url, cookies=cookies)
 
         return (
-            # full_time_result
+            # full_time_result      13
             self._request(s, competition, 13),
-            # both_teams_to_score
+            # both_teams_to_score   170
             self._request(s, competition, 170),
-            # double_chance
+            # double_chance         195
             self._request(s, competition, 195),
-            # under_over
+            # under_over            56
             # self._request(s, competition, 56),
         )
+
+    def competition(self, url: str) -> str:
+        re_bet365 = re.compile(
+            r'https?://www\.bet365\.\w{2,3}/#/'
+            r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
+        )
+        if re_bet365.match(url):
+            return url.split('/')[8]
+        else:
+            msg = f'Cannot parse {url}'
+            raise ValueError(msg)
