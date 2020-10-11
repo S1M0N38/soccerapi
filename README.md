@@ -12,16 +12,16 @@ soccer (aka football) odds using python commands.
 
 ## ⚽️ The goal
 
-The goal of the project is provided a enjoyable way to get odds data for
-different soccer leagues. Usually, if someone want to get these types of data,
+The goal of the project is provided an enjoyable way to get odds data for
+different soccer leagues. Usually, if someone wants to get these types of data,
 have to build by him self (and from scratch) a program able to scrape the
 betting site or use some kind paid API. Soccer API try to address this problem.
 
 ## 💡 The philosophy
 
 Keep it simple. Simple API, simple http requests, few dependencies. In the past
-I have try to build some heavy framework able to scraping site (using selenium
-able to handle complex JavaScript): was a unmaintainable nightmare.
+I have tried to build some heavy framework able to scraping site (using
+selenium able to handle complex JavaScript): was an *unmaintainable nightmare*.
 
 ## 📘 The documentation
 
@@ -40,9 +40,9 @@ pip install soccerapi
 ------------------------------------------------------------------------------
 
 Alternatively, if you want a kind of testing/developing setup, you can install
-Soccer API directly from source code by first cloning the repository from github
-and then install dev dependencies ([pipenv](https://pipenv.pypa.io/en/latest/)
-is required)
+Soccer API directly from source code by first cloning the repository from
+github and then install dev dependencies
+([pipenv](https://pipenv.pypa.io/en/latest/) is required)
 
 ```bash
 git clone https://github.com/S1M0N38/soccerapi.git
@@ -51,7 +51,7 @@ pip install -e .
 pipenv install --dev
 ```
 
-and then activate the enviroment
+and then activate the environment
 
 ```bash
 pipenv shell
@@ -59,7 +59,8 @@ pipenv shell
 
 ### Usage
 
-Import the *soccerapi* bookmaker, define the *api* varibale, reuquest the *odds*.
+Import the *soccerapi* bookmaker, define the *api* variable and request
+*odds*.
 
 ```python
 from soccerapi.api import Api888Sport
@@ -67,7 +68,8 @@ from soccerapi.api import Api888Sport
 # from soccerapi.api import ApiBet365
 
 api = Api888Sport()
-odds = api.odds('italy', 'serie_a')
+url = 'https://www.888sport.com/#/filter/football/italy/serie_a'
+odds = api.odds(url)
 
 print(odds)
 ```
@@ -96,21 +98,28 @@ print(odds)
 ]
 ```
 
-the _odds_ method return a list of next events of the request competition
-(in the example: country='italy' and league='serie_a'). For a complete list
-of supported bookmakers and releated competitonstake a look at the
-[competitons table](https://docs.google.com/spreadsheets/d/e/2PACX-1vTTAsRWCJxQrrrbxpC4s12QwfDRKcmstbc5A1f6VnDSHN1TcTjjRgMMJfhc0dqbfqCw3dTtsCFBg7G_/pubhtml?gid=187969326&single=true).
+The _odds_ method return a list of next events of the request competition
+(in the example: the url points to *italy-serie_a*, try to open on your
+browser). To get these url, open the bookmaker site and browser to competitions
+you want to scrape: that's the urls you have to pass to *odds()*.
+
+For example urls for *england-premier_league* are:
+- **bet365** `https://www.bet365.it/#/AC/B1/C1/D13/E51761579/F2/`
+- **888sport** `https://www.888sport.com/#/filter/football/england/premier_league`
+- **unibet** `https://www.unibet.com/betting/sports/filter/football/england/premier_league/matches`
+(note that these are urls that works for me, maybe your urls are not `.it` but
+`.com`)
 
 ### Country restriction
 
 The regulation of online gambling varies from country to country. There are
-differnt versions of the betting site depending of the provenince of your
-http request. Moreover most of bookmakers implement some kind of VPN detection
-that block VPN-http requests. Due to these constrains it's diffcult to test
-soccerapi for worldwide usability. Here is reported some resum of bookmaker
-accecibilty from various country.
+different versions of the betting site depending on the provenience of your
+http request. Moreover, most bookmakers implement some kind of VPN detection
+that block VPN-http requests. Due to this constrains it's difficult to test
+soccerapi for worldwide usability. Here is reported some results about bookmaker
+accessibility from various country.
 
-|           | bet365 | 888sport / unibet |
-|-----------| :----: | :---------------: |
-|accessible | :it:   | :us: :canada: :australia: :brazil: :switzerland: :it: :de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland: :india: :singapore: :hong_kong: :new_zealand: :mexico: :romania:|
-|inaccesible|        | :fr: :uk:         |
+|            | bet365 | 888sport / unibet |
+|----------- | :----: | :---------------: |
+|accessible  | :it:   | :us: :canada: :australia: :brazil: :switzerland: :it: :de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland: :india: :singapore: :hong_kong: :new_zealand: :mexico: :romania:|
+|inaccessible|        | :fr: :uk:         |
