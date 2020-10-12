@@ -98,15 +98,17 @@ print(odds)
 ]
 ```
 
-The _odds_ method return a list of next events of the request competition
+The *odds* method return a list of next events of the request competition
 (in the example: the url points to *italy-serie_a*, try to open on your
 browser). To get these url, open the bookmaker site and browser to competitions
 you want to scrape: that's the urls you have to pass to *odds()*.
 
 For example urls for *england-premier_league* are:
+
 - **bet365** `https://www.bet365.it/#/AC/B1/C1/D13/E51761579/F2/`
 - **888sport** `https://www.888sport.com/#/filter/football/england/premier_league`
 - **unibet** `https://www.unibet.com/betting/sports/filter/football/england/premier_league/matches`
+
 (note that these are urls that works for me, maybe your urls are not `.it` but
 `.com`)
 
