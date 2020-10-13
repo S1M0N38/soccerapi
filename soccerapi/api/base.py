@@ -19,7 +19,7 @@ class ApiBase(abc.ABC):
         """
         pass
 
-    def odds(self, url: str) -> Dict:
+    def odds(self, url: str) -> List:
         """ Get odds from country-league competition or from url """
 
         odds = []
