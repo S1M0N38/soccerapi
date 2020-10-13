@@ -125,3 +125,8 @@ accessibility from various country.
 |----------- | :----: | :---------------: |
 |accessible  | :it:   | :us: :canada: :australia: :brazil: :switzerland: :it: :de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland: :india: :singapore: :hong_kong: :new_zealand: :mexico: :romania:|
 |inaccessible|        | :fr: :uk:         |
+
+### Contributing
+
+If you like to contribute to the project read
+[CONTRIBUTING.md](https://github.com/S1M0N38/soccerapi/blob/master/CONTRIBUTING.md)
