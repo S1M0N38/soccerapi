@@ -1,4 +1,4 @@
-# Soccer API
+# soccerapi
 
 [![CI Badge](https://github.com/S1M0N38/soccerapi/workflows/CI/badge.svg)](https://github.com/S1M0N38/soccer-api/actions)
 [![Coverage Badge](https://api.codacy.com/project/badge/Coverage/5bad465c97414d86ba0931c40f0a2c95)](https://www.codacy.com/manual/S1M0N38/soccer-api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=S1M0N38/soccer-api&amp;utm_campaign=Badge_Coverage)
@@ -6,7 +6,7 @@
 [![PyPI version](https://badge.fury.io/py/soccerapi.svg)](https://badge.fury.io/py/soccerapi)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Soccer API (Application Programming Interface) is a simple wrapper build on top
+soccerapi (Application Programming Interface) is a simple wrapper build on top
 of some bookmakers (888sport, bet365 and Unibet) in order to get data about
 soccer (aka football) odds using python commands.
 
