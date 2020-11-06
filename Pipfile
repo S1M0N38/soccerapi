@@ -10,6 +10,7 @@ pytest-cov = "*"
 codacy-coverage = "*"
 black = "*"
 secretstorage = "*"
+pandas = "*"
 
 [packages]
 api = {editable = true,path = "."}
