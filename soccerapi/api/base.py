@@ -14,7 +14,7 @@ class ApiBase(abc.ABC):
 
     @abc.abstractmethod
     def competition(self, url: str) -> str:
-        """ Get the competition from url.
+        """Get the competition from url.
         First check it validity using regex,then exstract competition from it
         """
         pass
@@ -41,7 +41,7 @@ class ApiBase(abc.ABC):
         # - Kambi based api is [[], [], []]
         # - bet365 is []
         if len(sum(odds, [])) > 0:
-            return odds
+            return odds[0]
         else:
             msg = f'No odds in {url} have been found.'
             raise NoOddsError(msg)

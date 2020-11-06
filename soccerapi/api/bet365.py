@@ -81,15 +81,16 @@ class ApiBet365(ApiBase):
         if len(values) == 0:
             raise NoOddsError
         key = self._guess_xor_key(values[0])
+
         for obfuscated_odd in values:
             # Event exists but no odds are available
             if obfuscated_odd == '':
                 odd = None
             else:
                 n, d = self._xor(obfuscated_odd, key).split('/')
-                # TODO Watch out, the conversion between frac and dec
-                # is not perfect due to rounding
-                odd = round((int(n) / int(d) + 1) * 1000)
+                # it seem that is the conversion formula used by bet365 to
+                # convert from fractional to decimal format
+                odd = int((int(n) / int(d) + 1) * 100) * 10
             odds.append(odd)
         return odds
 
@@ -113,9 +114,20 @@ class ApiBet365(ApiBase):
         odds = []
         events = self._parse_events(data)
         full_time_result = self._parse_odds(data)
-        _1s = full_time_result[0::3]
-        _Xs = full_time_result[1::3]
-        _2s = full_time_result[2::3]
+
+        assert len(events) == len(full_time_result) / 3
+
+        # old format, store by rows
+        # _1s = full_time_result[0::3]
+        # _Xs = full_time_result[1::3]
+        # _2s = full_time_result[2::3]
+
+        # new foramt
+        le = len(events)
+        assert le == len(full_time_result) / 3
+        _1s = full_time_result[:le]
+        _Xs = full_time_result[le : 2 * le]
+        _2s = full_time_result[2 * le :]
 
         for event, _1, _X, _2 in zip(events, _1s, _Xs, _2s):
             odds.append(
@@ -128,9 +140,16 @@ class ApiBet365(ApiBase):
 
         odds = []
         events = self._parse_events(data)
-        full_time_result = self._parse_odds(data)
-        yess = full_time_result[0::2]
-        nos = full_time_result[1::2]
+        both_teams_to_score = self._parse_odds(data)
+
+        # old format, store by rows
+        # yess = both_teams_to_score[0::2]
+        # nos = both_teams_to_score[1::2]
+
+        # new foramt
+        assert len(events) == len(both_teams_to_score) / 2
+        yess = both_teams_to_score[: len(events)]
+        nos = both_teams_to_score[len(events) :]
 
         for event, yes, no in zip(events, yess, nos):
             odds.append(
@@ -144,10 +163,19 @@ class ApiBet365(ApiBase):
 
         odds = []
         events = self._parse_events(data)
-        full_time_result = self._parse_odds(data)
-        _1Xs = full_time_result[0::3]
-        _2Xs = full_time_result[1::3]
-        _12s = full_time_result[2::3]
+        double_chance = self._parse_odds(data)
+
+        # old format, store by rows
+        # _1Xs = double_chance[0::3]
+        # _2Xs = double_chance[1::3]
+        # _12s = double_chance[2::3]
+
+        # new foramt
+        le = len(events)
+        assert le == len(double_chance) / 3
+        _1Xs = double_chance[:le]
+        _2Xs = double_chance[le : 2 * le]
+        _12s = double_chance[2 * le :]
 
         for event, _1X, _2X, _12 in zip(events, _1Xs, _2Xs, _12s):
             odds.append(
