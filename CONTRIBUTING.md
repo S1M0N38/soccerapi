@@ -11,8 +11,7 @@ so I can update the documentation.
 
 ## Installing the development version
 
-[Pipenv](https://pipenv.pypa.io/en/latest/) is used as package manager
-(maybe in the future [Poetry](https://python-poetry.org/) will be used) so you
+[Poetry](https://python-poetry.org/) is used as package manager so you
 have to install it on your local machine.
 
 Then clone this Github repository with
@@ -25,16 +24,12 @@ and then go into it
 cd soccerapi
 ```
 
-Then install soccerapi with
+Then install the dependencies with
 ```bash
-pip install -e .
-```
-and the developer dependencies with
-```bash
-pipenv install --dev
+poetry install
 ```
 
 ## Running the test suite
 
 Go into soccerapi directory (the same directory where is README.md) and run
-tests with `pipenv run pytest`
+tests with `pipenv run pytest`.
