@@ -102,9 +102,10 @@ class ApiBet365(ApiBase):
         home_teams, away_teams = self._parse_teams(data)
 
         for dt, home_team, away_team in zip(datetimes, home_teams, away_teams):
-            events.append(
-                {'time': dt, 'home_team': home_team, 'away_team': away_team}
-            )
+            if dt > datetime.now():
+                events.append(
+                    {'time': dt, 'home_team': home_team, 'away_team': away_team}
+                )
 
         return events
 
