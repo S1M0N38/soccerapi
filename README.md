@@ -42,19 +42,18 @@ pip install soccerapi
 Alternatively, if you want a kind of testing/developing setup, you can install
 Soccer API directly from source code by first cloning the repository from
 github and then install dev dependencies
-([pipenv](https://pipenv.pypa.io/en/latest/) is required)
+([poetry](https://python-poetry.org/) is required)
 
 ```bash
 git clone https://github.com/S1M0N38/soccerapi.git
 cd soccerapi
-pip install -e .
-pipenv install --dev
+poetry install
 ```
 
 and then activate the environment
 
 ```bash
-pipenv shell
+poetry shell
 ```
 
 ### Usage
