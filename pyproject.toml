@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "soccerapi"
-version = "0.6.2"
+version = "0.6.3"
 description = "A simple python wrapper to get soccer odds"
 authors = ["S1M0N38 <bertolottosimone@gmail.com>"]
 license = "MIT"
