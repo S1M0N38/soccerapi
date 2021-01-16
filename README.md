@@ -122,7 +122,7 @@ accessibility from various country.
 
 |            | bet365 | 888sport / unibet |
 |----------- | :----: | :---------------: |
-|accessible  | :it:   | :us: :canada: :australia: :brazil: :switzerland: :it: :de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland: :india: :singapore: :hong_kong: :new_zealand: :mexico: :romania:|
+|accessible  | :it: :brazil:  | :us: :canada: :australia: :brazil: :switzerland: :it: :de: :denmark: :es: :finland: :jp: :netherlands: :norway: :sweden: :ireland: :india: :singapore: :hong_kong: :new_zealand: :mexico: :romania:|
 |inaccessible|        | :fr: :uk:         |
 
 ### Contributing
