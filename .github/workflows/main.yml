@@ -1,21 +1,24 @@
 name: CI
-
-on: [push]
+on: pull_request
 
 jobs:
-  build:
-
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+        poetry-version: [1.1.4]
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.7'
-    - uses: dschep/install-pipenv-action@v1
-    - name: Install dependencies
-      run: pipenv install --dev --pre
-    - name: Run test
-      run: pipenv run pytest
-    - name: Coverage report
-      run: pipenv run python-codacy-coverage -r coverage.xml -t ${{ secrets.CODACY_PROJECT_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Install dependencies
+        run: poetry install
+      - name: Run tests
+        run: poetry run pytest
