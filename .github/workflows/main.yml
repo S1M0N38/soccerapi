@@ -16,6 +16,6 @@ jobs:
     - name: Install dependencies
       run: pipenv install --dev --pre
     - name: Run test
-      run: pipenv run pytest
+      run: pipenv run pytest --tb=no
     - name: Coverage report
       run: pipenv run python-codacy-coverage -r coverage.xml -t ${{ secrets.CODACY_PROJECT_TOKEN }}
