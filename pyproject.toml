@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "soccerapi"
+version = "0.6.2"
+description = "A simple python wrapper to get soccer odds"
+authors = ["S1M0N38 <bertolottosimone@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/S1M0N38/soccerapi"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+requests = "^2.25.1"
+pytest = "^6.2.1"
+pytest-cov = "^2.10.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
