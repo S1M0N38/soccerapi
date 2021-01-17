@@ -41,7 +41,7 @@ poetry shell
 ## Running the test suite
 
 Go into soccerapi directory (the same directory where is README.md) and run
-tests with `p`.
+tests with `pytest`.
 
 ## Writing Api for new bookmaker
 
