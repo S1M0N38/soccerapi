@@ -138,7 +138,10 @@ class ParserBet365:
         values = self._get_values(data, 'OD')
         if len(values) == 0:
             raise NoOddsError
-        key = self._guess_xor_key(values[0])
+
+        TK = data.split(';')[1][3:]
+        key = ord(TK[0]) ^ ord(TK[1])
+        # key = self._guess_xor_key(values[0])
 
         for obfuscated_odd in values:
             # Event exists but no odds are available
