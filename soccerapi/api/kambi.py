@@ -27,7 +27,7 @@ class ParserKambi:
                     'time': event['event']['start'],
                     'home_team': event['event']['homeName'],
                     'away_team': event['event']['awayName'],
-                    'full_time_resut': full_time_result,
+                    'odds': full_time_result,
                 }
             )
         return odds
@@ -51,7 +51,7 @@ class ParserKambi:
                     'time': event['event']['start'],
                     'home_team': event['event']['homeName'],
                     'away_team': event['event']['awayName'],
-                    'both_teams_to_score': both_teams_to_score,
+                    'odds': both_teams_to_score,
                 }
             )
         return odds
@@ -76,7 +76,7 @@ class ParserKambi:
                     'time': event['event']['start'],
                     'home_team': event['event']['homeName'],
                     'away_team': event['event']['awayName'],
-                    'double_chance': double_chance,
+                    'odds': double_chance,
                 }
             )
         return odds
