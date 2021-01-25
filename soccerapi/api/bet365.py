@@ -7,16 +7,74 @@ import requests
 from .base import ApiBase, NoOddsError
 
 
-class ApiBet365(ApiBase):
-    """ The ApiBase implementation of bet365.com """
+class ParserBet365:
+    """ Implementation of parsers for ApiBet365 """
 
-    def __init__(self):
-        self.name = 'bet365'
-        self.parsers = [
-            self._full_time_result,
-            self._both_teams_to_score,
-            self._double_chance,
-        ]
+    def full_time_result(self, data: str) -> List:
+        odds = []
+        events = self._parse_events(data)
+        full_time_result = self._parse_odds(data)
+
+        assert len(events) == len(full_time_result) / 3
+
+        # old format, store by rows
+        # _1s = full_time_result[0::3]
+        # _Xs = full_time_result[1::3]
+        # _2s = full_time_result[2::3]
+
+        # new foramt
+        le = len(events)
+        assert le == len(full_time_result) / 3
+        _1s = full_time_result[:le]
+        _Xs = full_time_result[le : 2 * le]
+        _2s = full_time_result[2 * le :]
+
+        for event, _1, _X, _2 in zip(events, _1s, _Xs, _2s):
+            odds.append({**event, 'odds': {'1': _1, 'X': _X, '2': _2}})
+        return odds
+
+    def both_teams_to_score(self, data: str) -> List:
+        odds = []
+        events = self._parse_events(data)
+        both_teams_to_score = self._parse_odds(data)
+
+        # old format, store by rows
+        # yess = both_teams_to_score[0::2]
+        # nos = both_teams_to_score[1::2]
+
+        # new foramt
+        assert len(events) == len(both_teams_to_score) / 2
+        yess = both_teams_to_score[: len(events)]
+        nos = both_teams_to_score[len(events) :]
+
+        for event, yes, no in zip(events, yess, nos):
+            odds.append({**event, 'odds': {'yes': yes, 'no': no}})
+
+        return odds
+
+    def double_chance(self, data: str) -> List:
+        odds = []
+        events = self._parse_events(data)
+        double_chance = self._parse_odds(data)
+
+        # old format, store by rows
+        # _1Xs = double_chance[0::3]
+        # _2Xs = double_chance[1::3]
+        # _12s = double_chance[2::3]
+
+        # new foramt
+        le = len(events)
+        assert le == len(double_chance) / 3
+        _1Xs = double_chance[:le]
+        _2Xs = double_chance[le : 2 * le]
+        _12s = double_chance[2 * le :]
+
+        for event, _1X, _2X, _12 in zip(events, _1Xs, _2Xs, _12s):
+            odds.append({**event, 'odds': {'1X': _1X, '12': _12, '2X': _2X}})
+
+        return odds
+
+    # Auxiliary methods
 
     @staticmethod
     def _xor(msg: str, key: int) -> str:
@@ -80,7 +138,10 @@ class ApiBet365(ApiBase):
         values = self._get_values(data, 'OD')
         if len(values) == 0:
             raise NoOddsError
-        key = self._guess_xor_key(values[0])
+
+        TK = data.split(';')[1][3:]
+        key = ord(TK[0]) ^ ord(TK[1])
+        # key = self._guess_xor_key(values[0])
 
         for obfuscated_odd in values:
             # Event exists but no odds are available
@@ -102,111 +163,33 @@ class ApiBet365(ApiBase):
         home_teams, away_teams = self._parse_teams(data)
 
         for dt, home_team, away_team in zip(datetimes, home_teams, away_teams):
-            if dt > datetime.now():
+            if dt > datetime.utcnow():
                 events.append(
                     {'time': dt, 'home_team': home_team, 'away_team': away_team}
                 )
 
         return events
 
-    def _full_time_result(self, data: str) -> List:
-        """ Parse the raw data for full_time_result [13]"""
 
-        odds = []
-        events = self._parse_events(data)
-        full_time_result = self._parse_odds(data)
+class ApiBet365(ApiBase, ParserBet365):
+    """ The ApiBase implementation of bet365.com """
 
-        assert len(events) == len(full_time_result) / 3
+    def __init__(self):
+        self.name = 'bet365'
+        self.session = requests.Session()
 
-        # old format, store by rows
-        # _1s = full_time_result[0::3]
-        # _Xs = full_time_result[1::3]
-        # _2s = full_time_result[2::3]
-
-        # new foramt
-        le = len(events)
-        assert le == len(full_time_result) / 3
-        _1s = full_time_result[:le]
-        _Xs = full_time_result[le : 2 * le]
-        _2s = full_time_result[2 * le :]
-
-        for event, _1, _X, _2 in zip(events, _1s, _Xs, _2s):
-            odds.append(
-                {**event, 'full_time_result': {'1': _1, 'X': _X, '2': _2}}
-            )
-        return odds
-
-    def _both_teams_to_score(self, data: str) -> List:
-        """ Parse the raw data for both_teams_to_score [170]"""
-
-        odds = []
-        events = self._parse_events(data)
-        both_teams_to_score = self._parse_odds(data)
-
-        # old format, store by rows
-        # yess = both_teams_to_score[0::2]
-        # nos = both_teams_to_score[1::2]
-
-        # new foramt
-        assert len(events) == len(both_teams_to_score) / 2
-        yess = both_teams_to_score[: len(events)]
-        nos = both_teams_to_score[len(events) :]
-
-        for event, yes, no in zip(events, yess, nos):
-            odds.append(
-                {**event, 'both_teams_to_score': {'yes': yes, 'no': no}}
-            )
-
-        return odds
-
-    def _double_chance(self, data: str) -> List:
-        """ Parse the raw data for double_chance [195]"""
-
-        odds = []
-        events = self._parse_events(data)
-        double_chance = self._parse_odds(data)
-
-        # old format, store by rows
-        # _1Xs = double_chance[0::3]
-        # _2Xs = double_chance[1::3]
-        # _12s = double_chance[2::3]
-
-        # new foramt
-        le = len(events)
-        assert le == len(double_chance) / 3
-        _1Xs = double_chance[:le]
-        _2Xs = double_chance[le : 2 * le]
-        _12s = double_chance[2 * le :]
-
-        for event, _1X, _2X, _12 in zip(events, _1Xs, _2Xs, _12s):
-            odds.append(
-                {**event, 'double_chance': {'1X': _1X, '12': _12, '2X': _2X}}
-            )
-
-        return odds
-
-    def _request(
-        self, s: requests.Session, competition: str, category: int
-    ) -> str:
-        """ Make the single request using the active session """
-
-        url = 'https://www.bet365.it/SportsBook.API/web'
-        params = (
-            ('lid', '1'),
-            ('zid', '0'),
-            ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
-            ('cid', '97'),
-            ('ctid', '97'),
+    def competition(self, url: str) -> str:
+        re_bet365 = re.compile(
+            r'https?://www\.bet365\.\w{2,3}/#/'
+            r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
         )
-        return s.get(url, params=params).text
+        if re_bet365.match(url):
+            return url.split('/')[8]
+        else:
+            msg = f'Cannot parse {url}'
+            raise ValueError(msg)
 
-    def _requests(self, competition: str, **kwargs) -> Tuple[Dict]:
-        """Build URL starting from league (an unique id) and requests data for
-        - full_time_result
-        - both_teams_to_score
-        - double_chance
-        """
-
+    def requests(self, competition: str) -> Tuple[Dict]:
         config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
         cookies = {'aps03': 'ct=97&lng=6'}
         headers = {
@@ -225,28 +208,28 @@ class ApiBet365(ApiBase):
                 'Chrome/79.0.3945.117 Safari/537.36'
             ),
         }
-        s = requests.Session()
-        s.headers.update(headers)
-        s.get(config_url, cookies=cookies)
+        self.session.headers.update(headers)
+        self.session.get(config_url, cookies=cookies)
 
-        return (
-            # full_time_result      13
-            self._request(s, competition, 13),
-            # both_teams_to_score   170
-            self._request(s, competition, 170),
-            # double_chance         195
-            self._request(s, competition, 195),
+        return {
+            'full_time_result': self._request(competition, 13),
+            'both_teams_to_score': self._request(competition, 170),
+            'double_chance': self._request(competition, 195),
             # under_over            56
             # self._request(s, competition, 56),
-        )
+        }
 
-    def competition(self, url: str) -> str:
-        re_bet365 = re.compile(
-            r'https?://www\.bet365\.\w{2,3}/#/'
-            r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
+    # Auxiliary methods
+
+    def _request(self, competition: str, category: int) -> str:
+        """ Make the single request using the active session """
+
+        url = 'https://www.bet365.it/SportsBook.API/web'
+        params = (
+            ('lid', '1'),
+            ('zid', '0'),
+            ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
+            ('cid', '97'),
+            ('ctid', '97'),
         )
-        if re_bet365.match(url):
-            return url.split('/')[8]
-        else:
-            msg = f'Cannot parse {url}'
-            raise ValueError(msg)
+        return self.session.get(url, params=params).text
