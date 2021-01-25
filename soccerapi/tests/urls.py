@@ -1,10 +1,20 @@
+# old
+# urls_bet365 = [
+#     'https://www.bet365.com/#/AC/B1/C1/D13/E52224631/F2/',  # italy-seria_a
+#     'https://www.bet365.com/#/AC/B1/C1/D13/E52547961/F2/I1/',  # italy-serie-b
+#     'https://www.bet365.com/#/AC/B1/C1/D13/E51761579/F2/',  # england-premier_league
+#     'https://www.bet365.com/#/AC/B1/C1/D13/E51791071/F2/I1/',  # england-championship
+#     'https://www.bet365.com/#/AC/B1/C1/D13/E51669667/F2/I1/',  # germany-bundesliga
+#     'https://www.bet365.com/#/AC/B1/C1/D13/E51669781/F2/I1/',  # germany-bundesliga2
+# ]
+
 urls_bet365 = [
-    'https://www.bet365.com/#/AC/B1/C1/D13/E52224631/F2/',  # italy-seria_a
-    'https://www.bet365.com/#/AC/B1/C1/D13/E52547961/F2/I1/',  # italy-serie-b
-    'https://www.bet365.com/#/AC/B1/C1/D13/E51761579/F2/',  # england-premier_league
-    'https://www.bet365.com/#/AC/B1/C1/D13/E51791071/F2/I1/',  # england-championship
-    'https://www.bet365.com/#/AC/B1/C1/D13/E51669667/F2/I1/',  # germany-bundesliga
-    'https://www.bet365.com/#/AC/B1/C1/D13/E51669781/F2/I1/',  # germany-bundesliga2
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97865356/H3/',  # italy-seria_a
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97601488/H3/',  # italy-serie-b
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452824/H3/',  # england-premier_league
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97453278/H3/',  # england-championship
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97865095/H3/',  # germany-bundesliga
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97601435/H3/',  # germany-bundesliga2
 ]
 
 urls_888sport = [

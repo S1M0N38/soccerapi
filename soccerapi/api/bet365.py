@@ -179,15 +179,28 @@ class ApiBet365(ApiBase, ParserBet365):
         self.session = requests.Session()
 
     def competition(self, url: str) -> str:
+        # e.g. https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452824/H3/
         re_bet365 = re.compile(
             r'https?://www\.bet365\.\w{2,3}/#/'
-            r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
+            r'AC/B1/C1/D7/E40/F4/G[0-9]+/H3/?'
         )
         if re_bet365.match(url):
-            return url.split('/')[8]
+            return url.split('/')[10]
         else:
             msg = f'Cannot parse {url}'
             raise ValueError(msg)
+
+    # old this url parser is deprecated
+    # def competition(self, url: str) -> str:
+    #     re_bet365 = re.compile(
+    #         r'https?://www\.bet365\.\w{2,3}/#/'
+    #         r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
+    #     )
+    #     if re_bet365.match(url):
+    #         return url.split('/')[8]
+    #     else:
+    #         msg = f'Cannot parse {url}'
+    #         raise ValueError(msg)
 
     def requests(self, competition: str) -> Tuple[Dict]:
         config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
@@ -212,11 +225,13 @@ class ApiBet365(ApiBase, ParserBet365):
         self.session.get(config_url, cookies=cookies)
 
         return {
-            'full_time_result': self._request(competition, 13),
-            'both_teams_to_score': self._request(competition, 170),
-            'double_chance': self._request(competition, 195),
-            # under_over            56
-            # self._request(s, competition, 56),
+            'full_time_result': self._request(competition, 40),
+            'both_teams_to_score': self._request(competition, 10150),
+            'double_chance': self._request(competition, 50401),
+            # old
+            # 'full_time_result': self._request(competition, 13),
+            # 'both_teams_to_score': self._request(competition, 170),
+            # 'double_chance': self._request(competition, 195),
         }
 
     # Auxiliary methods
@@ -228,7 +243,8 @@ class ApiBet365(ApiBase, ParserBet365):
         params = (
             ('lid', '1'),
             ('zid', '0'),
-            ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
+            # old ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
+            ('pd', f'#AC#B1#C1#D7#E{category}#F4#{competition}#H3#'),
             ('cid', '97'),
             ('ctid', '97'),
         )
