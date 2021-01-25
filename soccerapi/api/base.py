@@ -1,4 +1,5 @@
 import abc
+from pprint import pprint
 from typing import List, Tuple
 
 
@@ -19,23 +20,29 @@ class ApiBase(abc.ABC):
 
     def odds(self, url: str) -> List:
         """ Get odds from url """
-        to_parse = self.requests(self.competition(url))
+
+        odds_to_parse = self.requests(self.competition(url))
+        odds_to_merge = {}
 
         # parse odds
-        to_format = dict()
-        for parser, data in to_parse.items():
-            to_format[parser]= getattr(self, parser)(data) # why not "self.parser(data)" ??
+        for parser, data in odds_to_parse.items():
+            odds_to_merge[parser] = getattr(self, parser)(data)
 
-        # TODO format odds
-        # get list of events
-        odds = to_format[list(to_parse.keys())[0]].copy()
-        for ind, event in enumerate(odds):
-            for parser in to_parse.keys():
-                # add market (parser) to event
-                event[parser] = to_format[parser][ind].get('odds')
-            # pop inherited odds key
-            event.pop('odds')
-            odds[ind] = event.copy()
+        # collect events from full_time_result
+        odds = [
+            {
+                'time': e['time'],
+                'home_team': e['home_team'],
+                'away_team': e['away_team'],
+            }
+            for e in odds_to_merge['full_time_result']
+        ]
+
+        for category, events in odds_to_merge.items():
+            for i, event in enumerate(events):
+                assert event['home_team'] == odds[i]['home_team']
+                assert event['away_team'] == odds[i]['away_team']
+                odds[i][category] = event['odds']
 
         return odds
 
