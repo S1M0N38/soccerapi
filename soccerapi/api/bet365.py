@@ -22,7 +22,7 @@ class ParserBet365:
         # _Xs = full_time_result[1::3]
         # _2s = full_time_result[2::3]
 
-        # new foramt
+        # new format
         le = len(events)
         assert le == len(full_time_result) / 3
         _1s = full_time_result[:le]
@@ -42,7 +42,7 @@ class ParserBet365:
         # yess = both_teams_to_score[0::2]
         # nos = both_teams_to_score[1::2]
 
-        # new foramt
+        # new format
         assert len(events) == len(both_teams_to_score) / 2
         yess = both_teams_to_score[: len(events)]
         nos = both_teams_to_score[len(events) :]
@@ -62,7 +62,7 @@ class ParserBet365:
         # _2Xs = double_chance[1::3]
         # _12s = double_chance[2::3]
 
-        # new foramt
+        # new format
         le = len(events)
         assert le == len(double_chance) / 3
         _1Xs = double_chance[:le]
@@ -74,7 +74,21 @@ class ParserBet365:
 
         return odds
 
-    # Auxiliary methods
+    def draw_no_bet(self, data: str) -> List:
+        odds = []
+        events = self._parse_events(data)
+        draw_no_bet = self._parse_odds(data)
+
+        # new format
+        le = len(events)
+        assert le == len(draw_no_bet) / 2
+        _1 = draw_no_bet[:le]
+        _2 = draw_no_bet[le:]
+
+        for event, _1, _2 in zip(events, _1, _2):
+            odds.append({**event, 'odds': {'1': _1, '2': _2}})
+
+        return odds
 
     @staticmethod
     def _xor(msg: str, key: int) -> str:
@@ -224,10 +238,13 @@ class ApiBet365(ApiBase, ParserBet365):
         self.session.headers.update(headers)
         self.session.get(config_url, cookies=cookies)
 
+        print(self._request(competition, 40))
+
         return {
             'full_time_result': self._request(competition, 40),
             'both_teams_to_score': self._request(competition, 10150),
             'double_chance': self._request(competition, 50401),
+            'draw_no_bet': self._request(competition, 10544),
             # old
             # 'full_time_result': self._request(competition, 13),
             # 'both_teams_to_score': self._request(competition, 170),
