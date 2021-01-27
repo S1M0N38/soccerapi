@@ -1,3 +1,5 @@
+# :warning: Currently ApiBet365 is not working
+
 # soccerapi
 
 [![PyPI version](https://badge.fury.io/py/soccerapi.svg)](https://badge.fury.io/py/soccerapi)
