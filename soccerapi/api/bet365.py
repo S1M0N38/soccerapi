@@ -238,8 +238,6 @@ class ApiBet365(ApiBase, ParserBet365):
         self.session.headers.update(headers)
         self.session.get(config_url, cookies=cookies)
 
-        print(self._request(competition, 40))
-
         return {
             'full_time_result': self._request(competition, 40),
             'both_teams_to_score': self._request(competition, 10150),
@@ -265,4 +263,9 @@ class ApiBet365(ApiBase, ParserBet365):
             ('cid', '97'),
             ('ctid', '97'),
         )
-        return self.session.get(url, params=params).text
+
+        # TODO address the X-Net-Sync-Term problem
+        headers = {
+            'X-Net-Sync-Term': 'ULkQYA==.nlwjAWwG78lpbyHU1X04Y3dd+cJmsxkb0OOQ4jJa71M='
+        }
+        return self.session.get(url, params=params, headers=headers).text
