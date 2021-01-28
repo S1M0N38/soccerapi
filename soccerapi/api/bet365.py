@@ -1,8 +1,10 @@
+import asyncio
 import re
 from datetime import datetime
 from typing import Dict, List, Tuple
 
 import requests
+from pyppeteer import launch
 
 from .base import ApiBase, NoOddsError
 
@@ -191,6 +193,8 @@ class ApiBet365(ApiBase, ParserBet365):
     def __init__(self):
         self.name = 'bet365'
         self.session = requests.Session()
+        self._token = ''
+        self._token_expires = 0
 
     def competition(self, url: str) -> str:
         # e.g. https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452824/H3/
@@ -234,6 +238,7 @@ class ApiBet365(ApiBase, ParserBet365):
                 'AppleWebKit/537.36 (KHTML, like Gecko) '
                 'Chrome/79.0.3945.117 Safari/537.36'
             ),
+            'X-Net-Sync-Term': self.token,
         }
         self.session.headers.update(headers)
         self.session.get(config_url, cookies=cookies)
@@ -251,6 +256,31 @@ class ApiBet365(ApiBase, ParserBet365):
 
     # Auxiliary methods
 
+    @property
+    def token(self):
+        if self._token_expires > datetime.now().timestamp():
+            return self._token
+        else:
+            loop = asyncio.get_event_loop()
+            self._token = loop.run_until_complete(self._get_token())
+            self._token_expires = datetime.now().timestamp() + 600
+            return self._token
+
+    async def _get_token(self):
+        browser = await launch(
+            headless=True,
+            args=['--disable-blink-features=AutomationControlled'],
+        )
+        page = (await browser.pages())[0]
+        await page.setUserAgent(
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
+        )
+        await page.goto("https://www.bet365.com")
+        request = await page.waitForRequest(lambda r: 'SportsBook' in r.url)
+        await browser.close()
+        return request.headers['x-net-sync-term']
+
     def _request(self, competition: str, category: int) -> str:
         """ Make the single request using the active session """
 
@@ -264,8 +294,4 @@ class ApiBet365(ApiBase, ParserBet365):
             ('ctid', '97'),
         )
 
-        # TODO address the X-Net-Sync-Term problem
-        headers = {
-            'X-Net-Sync-Term': 'ULkQYA==.nlwjAWwG78lpbyHU1X04Y3dd+cJmsxkb0OOQ4jJa71M='
-        }
-        return self.session.get(url, params=params, headers=headers).text
+        return self.session.get(url, params=params).text
