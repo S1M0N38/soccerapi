@@ -10,6 +10,7 @@ homepage = "https://github.com/S1M0N38/soccerapi"
 [tool.poetry.dependencies]
 python = "^3.7"
 requests = "^2.25.1"
+pyppeteer = "^0.2.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
