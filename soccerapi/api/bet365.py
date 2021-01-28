@@ -101,18 +101,18 @@ class ParserBet365:
             value += chr(ord(char) ^ key)
         return value
 
-    def _guess_xor_key(self, encoded_msg: str) -> int:
-        """ Try different key (int) until the msg is human readable """
+    # def _guess_xor_key(self, encoded_msg: str) -> int:
+    #     """ Try different key (int) until the msg is human readable """
 
-        for key in range(130):
-            msg = self._xor(encoded_msg, key)
-            try:
-                n, d = msg.split('/')
-                if n.isdigit() and d.isdigit():
-                    return key
-            except ValueError:
-                pass
-        raise ValueError('Key not found !')
+    #     for key in range(130):
+    #         msg = self._xor(encoded_msg, key)
+    #         try:
+    #             n, d = msg.split('/')
+    #             if n.isdigit() and d.isdigit():
+    #                 return key
+    #         except ValueError:
+    #             pass
+    #     raise ValueError('Key not found !')
 
     @staticmethod
     def _get_values(data: str, value: str) -> List:
