@@ -10,11 +10,11 @@
 
 urls_bet365 = [
     'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97865356/H3/',  # italy-seria_a
-    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97865393/H3/',  # italy-serie-b
-    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452824/H3/',  # england-premier_league
-    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97453278/H3/',  # england-championship
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97865400/H3/',  # italy-serie-b
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452852/H3/',  # england-premier_league
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97453289/H3/',  # england-championship
     'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97865095/H3/',  # germany-bundesliga
-    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97601445/H3/',  # germany-bundesliga2
+    'https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97601454/H3/',  # germany-bundesliga2
 ]
 
 urls_888sport = [
