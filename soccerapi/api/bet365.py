@@ -1,8 +1,10 @@
+import asyncio
 import re
 from datetime import datetime
 from typing import Dict, List, Tuple
 
 import requests
+from pyppeteer import launch
 
 from .base import ApiBase, NoOddsError
 
@@ -22,7 +24,7 @@ class ParserBet365:
         # _Xs = full_time_result[1::3]
         # _2s = full_time_result[2::3]
 
-        # new foramt
+        # new format
         le = len(events)
         assert le == len(full_time_result) / 3
         _1s = full_time_result[:le]
@@ -42,7 +44,7 @@ class ParserBet365:
         # yess = both_teams_to_score[0::2]
         # nos = both_teams_to_score[1::2]
 
-        # new foramt
+        # new format
         assert len(events) == len(both_teams_to_score) / 2
         yess = both_teams_to_score[: len(events)]
         nos = both_teams_to_score[len(events) :]
@@ -62,7 +64,7 @@ class ParserBet365:
         # _2Xs = double_chance[1::3]
         # _12s = double_chance[2::3]
 
-        # new foramt
+        # new format
         le = len(events)
         assert le == len(double_chance) / 3
         _1Xs = double_chance[:le]
@@ -74,7 +76,21 @@ class ParserBet365:
 
         return odds
 
-    # Auxiliary methods
+    def draw_no_bet(self, data: str) -> List:
+        odds = []
+        events = self._parse_events(data)
+        draw_no_bet = self._parse_odds(data)
+
+        # new format
+        le = len(events)
+        assert le == len(draw_no_bet) / 2
+        _1 = draw_no_bet[:le]
+        _2 = draw_no_bet[le:]
+
+        for event, _1, _2 in zip(events, _1, _2):
+            odds.append({**event, 'odds': {'1': _1, '2': _2}})
+
+        return odds
 
     @staticmethod
     def _xor(msg: str, key: int) -> str:
@@ -85,18 +101,18 @@ class ParserBet365:
             value += chr(ord(char) ^ key)
         return value
 
-    def _guess_xor_key(self, encoded_msg: str) -> int:
-        """ Try different key (int) until the msg is human readable """
+    # def _guess_xor_key(self, encoded_msg: str) -> int:
+    #     """ Try different key (int) until the msg is human readable """
 
-        for key in range(130):
-            msg = self._xor(encoded_msg, key)
-            try:
-                n, d = msg.split('/')
-                if n.isdigit() and d.isdigit():
-                    return key
-            except ValueError:
-                pass
-        raise ValueError('Key not found !')
+    #     for key in range(130):
+    #         msg = self._xor(encoded_msg, key)
+    #         try:
+    #             n, d = msg.split('/')
+    #             if n.isdigit() and d.isdigit():
+    #                 return key
+    #         except ValueError:
+    #             pass
+    #     raise ValueError('Key not found !')
 
     @staticmethod
     def _get_values(data: str, value: str) -> List:
@@ -177,17 +193,32 @@ class ApiBet365(ApiBase, ParserBet365):
     def __init__(self):
         self.name = 'bet365'
         self.session = requests.Session()
+        self._token = ''
+        self._token_expires = 0
 
     def competition(self, url: str) -> str:
+        # e.g. https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452824/H3/
         re_bet365 = re.compile(
             r'https?://www\.bet365\.\w{2,3}/#/'
-            r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
+            r'AC/B1/C1/D7/E40/F4/G[0-9]+/H3/?'
         )
         if re_bet365.match(url):
-            return url.split('/')[8]
+            return url.split('/')[10]
         else:
             msg = f'Cannot parse {url}'
             raise ValueError(msg)
+
+    # old this url parser is deprecated
+    # def competition(self, url: str) -> str:
+    #     re_bet365 = re.compile(
+    #         r'https?://www\.bet365\.\w{2,3}/#/'
+    #         r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
+    #     )
+    #     if re_bet365.match(url):
+    #         return url.split('/')[8]
+    #     else:
+    #         msg = f'Cannot parse {url}'
+    #         raise ValueError(msg)
 
     def requests(self, competition: str) -> Tuple[Dict]:
         config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
@@ -207,19 +238,48 @@ class ApiBet365(ApiBase, ParserBet365):
                 'AppleWebKit/537.36 (KHTML, like Gecko) '
                 'Chrome/79.0.3945.117 Safari/537.36'
             ),
+            'X-Net-Sync-Term': self.token,
         }
         self.session.headers.update(headers)
         self.session.get(config_url, cookies=cookies)
 
         return {
-            'full_time_result': self._request(competition, 13),
-            'both_teams_to_score': self._request(competition, 170),
-            'double_chance': self._request(competition, 195),
-            # under_over            56
-            # self._request(s, competition, 56),
+            'full_time_result': self._request(competition, 40),
+            'both_teams_to_score': self._request(competition, 10150),
+            'double_chance': self._request(competition, 50401),
+            'draw_no_bet': self._request(competition, 10544),
+            # old
+            # 'full_time_result': self._request(competition, 13),
+            # 'both_teams_to_score': self._request(competition, 170),
+            # 'double_chance': self._request(competition, 195),
         }
 
     # Auxiliary methods
+
+    @property
+    def token(self):
+        if self._token_expires > datetime.now().timestamp():
+            return self._token
+        else:
+            loop = asyncio.get_event_loop()
+            self._token = loop.run_until_complete(self._get_token())
+            self._token_expires = datetime.now().timestamp() + 600
+            return self._token
+
+    async def _get_token(self):
+        browser = await launch(
+            headless=True,
+            args=['--disable-blink-features=AutomationControlled'],
+        )
+        page = (await browser.pages())[0]
+        await page.setUserAgent(
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
+        )
+        await page.goto("https://www.bet365.com")
+        request = await page.waitForRequest(lambda r: 'SportsBook' in r.url)
+        await browser.close()
+        return request.headers['x-net-sync-term']
 
     def _request(self, competition: str, category: int) -> str:
         """ Make the single request using the active session """
@@ -228,8 +288,10 @@ class ApiBet365(ApiBase, ParserBet365):
         params = (
             ('lid', '1'),
             ('zid', '0'),
-            ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
+            # old ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
+            ('pd', f'#AC#B1#C1#D7#E{category}#F4#{competition}#H3#'),
             ('cid', '97'),
             ('ctid', '97'),
         )
+
         return self.session.get(url, params=params).text
