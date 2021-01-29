@@ -80,3 +80,27 @@ class ParserKambi:
                 }
             )
         return odds
+
+    def parse_competitions(self, base_url: str, data: Dict) -> Dict:
+        """ Parse the raw json request for competitions """
+
+        table = {}
+        for sport in data['group']['groups']:
+            if sport['termKey'] == 'football':
+                football = sport['groups']
+                break
+
+        for country in football:
+
+            if country['name'] not in table:
+                table[country['name']] = {}
+
+            if 'groups' in country:
+                for league in country['groups']:
+                    link = f'{base_url}{country["termKey"]}/{league["termKey"]}'
+                    table[country['name']][league['name']] = link
+            else:
+                link = f'{base_url}{country["termKey"]}'
+                table[country['name']][country['name']] = link
+
+        return table
