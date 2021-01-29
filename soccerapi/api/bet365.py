@@ -195,32 +195,6 @@ class ApiBet365(ApiBase, ParserBet365):
         self.session = requests.Session()
         self._token = ''
         self._token_expires = 0
-
-    def competition(self, url: str) -> str:
-        # e.g. https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452824/H3/
-        re_bet365 = re.compile(
-            r'https?://www\.bet365\.\w{2,3}/#/'
-            r'AC/B1/C1/D7/E40/F4/G[0-9]+/H3/?'
-        )
-        if re_bet365.match(url):
-            return url.split('/')[10]
-        else:
-            msg = f'Cannot parse {url}'
-            raise ValueError(msg)
-
-    # old this url parser is deprecated
-    # def competition(self, url: str) -> str:
-    #     re_bet365 = re.compile(
-    #         r'https?://www\.bet365\.\w{2,3}/#/'
-    #         r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
-    #     )
-    #     if re_bet365.match(url):
-    #         return url.split('/')[8]
-    #     else:
-    #         msg = f'Cannot parse {url}'
-    #         raise ValueError(msg)
-
-    def requests(self, competition: str) -> Tuple[Dict]:
         config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
         cookies = {'aps03': 'ct=97&lng=6'}
         headers = {
@@ -243,15 +217,52 @@ class ApiBet365(ApiBase, ParserBet365):
         self.session.headers.update(headers)
         self.session.get(config_url, cookies=cookies)
 
+    def url_to_competition(self, url: str) -> str:
+        re_bet365 = re.compile(
+            r'https?://www\.bet365\.\w{2,3}/#/'
+            r'AC/B1/C1/D7/E40/F4/G[0-9]+/H3/?'
+        )
+        if re_bet365.match(url):
+            return url.split('/')[10]
+        else:
+            msg = f'Cannot parse {url}'
+            raise ValueError(msg)
+
+    def competitions(self) -> str:
+        table = {}
+        table_country = self._request(
+            '#AM#B1#C1#D7#E40#F4#G97865356#H3#Z^1#Y^1_7_40_4_97865356#S1#',
+        ).split('|')
+        for row in table_country[2:-1]:
+            country = row.split('NA=')[1].split(';')[0]
+            country_link = row.split('PD=')[1].split(';')[0]
+
+            table[country] = {}
+            table_league = self._request(country_link).split('|')
+            for row2 in table_league[3:-1]:
+                league = row2.split('NA=')[1].split(';')[0]
+                league_link = row2.split('PD=')[1].split(';')[0]
+                link = 'https://www.bet365.com/#' + league_link.replace(
+                    '#', '/'
+                )
+                table[country][league] = link
+
+        return table
+
+    def requests(self, competition: str) -> Tuple[Dict]:
         return {
-            'full_time_result': self._request(competition, 40),
-            'both_teams_to_score': self._request(competition, 10150),
-            'double_chance': self._request(competition, 50401),
-            'draw_no_bet': self._request(competition, 10544),
-            # old
-            # 'full_time_result': self._request(competition, 13),
-            # 'both_teams_to_score': self._request(competition, 170),
-            # 'double_chance': self._request(competition, 195),
+            'full_time_result': self._request(
+                f'#AC#B1#C1#D7#E40#F4#{competition}#H3#'
+            ),
+            'both_teams_to_score': self._request(
+                f'#AC#B1#C1#D7#E10150#F4#{competition}#H3#'
+            ),
+            'double_chance': self._request(
+                f'#AC#B1#C1#D7#E50401#F4#{competition}#H3#'
+            ),
+            'draw_no_bet': self._request(
+                f'#AC#B1#C1#D7#E10544#F4#{competition}#H3#'
+            ),
         }
 
     # Auxiliary methods
@@ -281,15 +292,14 @@ class ApiBet365(ApiBase, ParserBet365):
         await browser.close()
         return request.headers['x-net-sync-term']
 
-    def _request(self, competition: str, category: int) -> str:
+    def _request(self, pd: str) -> str:
         """ Make the single request using the active session """
 
         url = 'https://www.bet365.it/SportsBook.API/web'
         params = (
             ('lid', '1'),
             ('zid', '0'),
-            # old ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
-            ('pd', f'#AC#B1#C1#D7#E{category}#F4#{competition}#H3#'),
+            ('pd', pd),
             ('cid', '97'),
             ('ctid', '97'),
         )
