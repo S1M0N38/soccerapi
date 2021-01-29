@@ -21,7 +21,10 @@ class TestApi888Sport(BaseTest):
     def api(self):
         yield Api888Sport()
 
-    # TODO add test competition
+    def test_competitions(self, api):
+        competitions = api.competitions()
+        pprint(competitions)
+        assert competitions
 
     @pytest.mark.parametrize('url', urls_888sport)
     def test_odds(self, api, url):
@@ -38,7 +41,10 @@ class TestApiBet365(BaseTest):
     def api(self):
         yield ApiBet365()
 
-    # TODO add test competition
+    def test_competitions(self, api):
+        competitions = api.competitions()
+        pprint(competitions)
+        assert competitions
 
     @pytest.mark.parametrize('url', urls_bet365)
     def test_odds(self, api, url):
@@ -55,7 +61,10 @@ class TestApiUnibet(BaseTest):
     def api(self):
         yield ApiUnibet()
 
-    # TODO add test competition
+    def test_competitions(self, api):
+        competitions = api.competitions()
+        pprint(competitions)
+        assert competitions
 
     @pytest.mark.parametrize('url', urls_unibet)
     def test_odds(self, api, url):
