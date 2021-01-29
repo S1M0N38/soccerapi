@@ -81,7 +81,9 @@ class ParserKambi:
             )
         return odds
 
-    def parse_competitions(self, base_url: str, data: Dict) -> Dict:
+    # Auxiliary methods
+
+    def _parse_competitions(self, base_url: str, data: Dict) -> Dict:
         """ Parse the raw json request for competitions """
 
         table = {}
