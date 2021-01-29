@@ -25,12 +25,15 @@ class Api888Sport(ApiBase, Parser888Sport):
             msg = f'Cannot parse {url}'
             raise ValueError(msg)
 
-    def competitions(self, market='IT') -> Dict:
+    def competitions(
+        self,
+        base_url='https://www.888sport.com/calcio/#/filter/football/',
+        market='IT',
+    ) -> Dict:
         url = 'https://eu-offering.kambicdn.org/offering/v2018/888/group.json'
-        params = {'lang': 'en_US', "market": market}
+        params = {'lang': 'en_US', 'market': market}
         competitions_to_parse = self.session.get(url, params=params).json()
-        base_url = 'https://www.888sport.com/calcio/#/filter/football/'
-        return self.parse_competitions(base_url, competitions_to_parse)
+        return self._parse_competitions(base_url, competitions_to_parse)
 
     def requests(self, competition: str) -> Tuple[Dict]:
         return {
@@ -38,6 +41,8 @@ class Api888Sport(ApiBase, Parser888Sport):
             'both_teams_to_score': self._request(competition, 11942),
             'double_chance': self._request(competition, 12220),
         }
+
+    # Parsers (implemented in ApiKambi)
 
     # Auxiliary methods
 

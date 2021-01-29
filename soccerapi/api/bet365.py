@@ -19,12 +19,6 @@ class ParserBet365:
 
         assert len(events) == len(full_time_result) / 3
 
-        # old format, store by rows
-        # _1s = full_time_result[0::3]
-        # _Xs = full_time_result[1::3]
-        # _2s = full_time_result[2::3]
-
-        # new format
         le = len(events)
         assert le == len(full_time_result) / 3
         _1s = full_time_result[:le]
@@ -40,11 +34,6 @@ class ParserBet365:
         events = self._parse_events(data)
         both_teams_to_score = self._parse_odds(data)
 
-        # old format, store by rows
-        # yess = both_teams_to_score[0::2]
-        # nos = both_teams_to_score[1::2]
-
-        # new format
         assert len(events) == len(both_teams_to_score) / 2
         yess = both_teams_to_score[: len(events)]
         nos = both_teams_to_score[len(events) :]
@@ -59,12 +48,6 @@ class ParserBet365:
         events = self._parse_events(data)
         double_chance = self._parse_odds(data)
 
-        # old format, store by rows
-        # _1Xs = double_chance[0::3]
-        # _2Xs = double_chance[1::3]
-        # _12s = double_chance[2::3]
-
-        # new format
         le = len(events)
         assert le == len(double_chance) / 3
         _1Xs = double_chance[:le]
@@ -81,7 +64,6 @@ class ParserBet365:
         events = self._parse_events(data)
         draw_no_bet = self._parse_odds(data)
 
-        # new format
         le = len(events)
         assert le == len(draw_no_bet) / 2
         _1 = draw_no_bet[:le]
@@ -92,6 +74,8 @@ class ParserBet365:
 
         return odds
 
+    # Auxiliary methods
+
     @staticmethod
     def _xor(msg: str, key: int) -> str:
         """ Applying xor algo to a message in order to make it readable """
@@ -100,19 +84,6 @@ class ParserBet365:
         for char in msg:
             value += chr(ord(char) ^ key)
         return value
-
-    # def _guess_xor_key(self, encoded_msg: str) -> int:
-    #     """ Try different key (int) until the msg is human readable """
-
-    #     for key in range(130):
-    #         msg = self._xor(encoded_msg, key)
-    #         try:
-    #             n, d = msg.split('/')
-    #             if n.isdigit() and d.isdigit():
-    #                 return key
-    #         except ValueError:
-    #             pass
-    #     raise ValueError('Key not found !')
 
     @staticmethod
     def _get_values(data: str, value: str) -> List:
@@ -200,13 +171,6 @@ class ApiBet365(ApiBase, ParserBet365):
         headers = {
             'Connection': 'keep-alive',
             'Origin': 'https://www.bet365.it',
-            'DNT': '1',
-            'Accept': '*/*',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-Mode': 'cors',
-            'Referer': 'https://www.bet365.it/',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9,it;q=0.8,la;q=0.7',
             'User-Agent': (
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) '
                 'AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -228,7 +192,7 @@ class ApiBet365(ApiBase, ParserBet365):
             msg = f'Cannot parse {url}'
             raise ValueError(msg)
 
-    def competitions(self) -> str:
+    def competitions(self, base_url='https://www.bet365.com/#') -> str:
         table = {}
         table_country = self._request(
             '#AM#B1#C1#D7#E40#F4#G97865356#H3#Z^1#Y^1_7_40_4_97865356#S1#',
@@ -242,9 +206,7 @@ class ApiBet365(ApiBase, ParserBet365):
             for row2 in table_league[3:-1]:
                 league = row2.split('NA=')[1].split(';')[0]
                 league_link = row2.split('PD=')[1].split(';')[0]
-                link = 'https://www.bet365.com/#' + league_link.replace(
-                    '#', '/'
-                )
+                link = base_url + league_link.replace('#', '/')
                 table[country][league] = link
 
         return table
@@ -269,6 +231,8 @@ class ApiBet365(ApiBase, ParserBet365):
 
     @property
     def token(self):
+        """X-Net-Sync-Term, a header required in every http request."""
+
         if self._token_expires > datetime.now().timestamp():
             return self._token
         else:
@@ -278,6 +242,12 @@ class ApiBet365(ApiBase, ParserBet365):
             return self._token
 
     async def _get_token(self):
+        """Spawn a headless web browser instance, navigate to bet365 and get
+        x-net-sync-term which is a header require for every requests.
+        This token lasts for 15 minutes, so every 10 minutes this
+        method is called.
+        """
+
         browser = await launch(
             headless=True,
             args=['--disable-blink-features=AutomationControlled'],
@@ -293,15 +263,17 @@ class ApiBet365(ApiBase, ParserBet365):
         return request.headers['x-net-sync-term']
 
     def _request(self, pd: str) -> str:
-        """ Make the single request using the active session """
+        """Make the single request using the active session.
+        The pd is a string that contains information about competition
+        and market (i.e. 'full_time_result', 'double_chance', ...)
+        """
 
         url = 'https://www.bet365.it/SportsBook.API/web'
         params = (
-            ('lid', '1'),
+            ('lid', '1'),  # language id, 1 == english
             ('zid', '0'),
             ('pd', pd),
             ('cid', '97'),
             ('ctid', '97'),
         )
-
         return self.session.get(url, params=params).text

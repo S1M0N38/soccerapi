@@ -25,12 +25,15 @@ class ApiUnibet(ApiBase, ParserUnibet):
             msg = f'Cannot parse {url}'
             raise ValueError(msg)
 
-    def competitions(self, market='IT') -> Dict:
+    def competitions(
+        self,
+        base_url='https://www.unibet.com/betting/sports/filter/football/',
+        market='IT',
+    ) -> Dict:
         url = 'https://eu-offering.kambicdn.org/offering/v2018/ub/group.json'
         params = {'lang': 'en_US', 'market': market}
         competitions_to_parse = self.session.get(url, params=params).json()
-        base_url = 'https://www.unibet.com/betting/sports/filter/football/'
-        return self.parse_competitions(base_url, competitions_to_parse)
+        return self._parse_competitions(base_url, competitions_to_parse)
 
     def requests(self, competition: str) -> Tuple[Dict]:
         return {
