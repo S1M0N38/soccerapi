@@ -1,10 +1,14 @@
 import abc
+import json
 from pprint import pprint
 
 import pytest
 from soccerapi.api import Api888Sport, ApiBet365, ApiUnibet
 
-from urls import urls_888sport, urls_bet365, urls_unibet
+# from urls import urls_888sport, urls_bet365, urls_unibet
+
+with open('urls.json') as f:
+    urls = json.load(f)
 
 
 class BaseTest(abc.ABC):
@@ -26,7 +30,7 @@ class TestApi888Sport(BaseTest):
     def api(self):
         yield Api888Sport()
 
-    @pytest.mark.parametrize('url', urls_888sport)
+    @pytest.mark.parametrize('url', urls['888sport'])
     def test_odds(self, api, url):
         odds = api.odds(url)
         pprint(odds)
@@ -41,7 +45,7 @@ class TestApiBet365(BaseTest):
     def api(self):
         yield ApiBet365()
 
-    @pytest.mark.parametrize('url', urls_bet365)
+    @pytest.mark.parametrize('url', urls['bet365'])
     def test_odds(self, api, url):
         odds = api.odds(url)
         pprint(odds)
@@ -56,7 +60,7 @@ class TestApiUnibet(BaseTest):
     def api(self):
         yield ApiUnibet()
 
-    @pytest.mark.parametrize('url', urls_unibet)
+    @pytest.mark.parametrize('url', urls['unibet'])
     def test_odds(self, api, url):
         odds = api.odds(url)
         pprint(odds)
