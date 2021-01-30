@@ -74,6 +74,48 @@ class ParserBet365:
 
         return odds
 
+    def asian_handicap(self, data: Tuple) -> List:
+        # parsing odds for asian handicap : data[0]
+        odds = []
+        events = self._parse_events(data[0])
+        asian_handicap = self._parse_odds(data[0])
+
+        le = len(events)
+        assert le == len(asian_handicap) / 2
+        _1 = asian_handicap[:le]
+        _2 = asian_handicap[le:]
+
+        home_handicaps = self._get_values(data[0], 'HD')[:le]
+        away_handicaps = self._get_values(data[0], 'HD')[le:]
+
+        zipped = zip(events, home_handicaps, away_handicaps, _1, _2)
+        for event, hH, aH, _1, _2 in zipped:
+            odds.append({**event, 'odds': {
+                '1': {hH : _1},
+                '2': {aH : _2},
+            }})
+
+        # parsing odds for alternative asian handicap: data[1]
+        events = data[1].split('MG;')[2:-1]
+        le = len(events) # potentially different from the one at line 83
+
+        alt_asian_handicaps = self._parse_odds(data[1])
+        for i, odd, event in zip(range(le), odds[:le], events):
+            # find leght of odds per event
+            lo = len(self._get_values(event, 'OD')) // 2
+
+            _1 = alt_asian_handicaps[i*lo:lo*(i+1)]
+            _2 = alt_asian_handicaps[lo*(i+1):lo*(i+2)]
+
+            home_handicaps = self._get_values(event, 'NA')[:lo]
+            away_handicaps = self._get_values(event, 'NA')[lo:]
+
+            for hH, aH, _1, _2 in zip(home_handicaps, away_handicaps, _1, _2):
+                odd['odds']['1'][hH] = _1
+                odd['odds']['2'][hH] = _2
+
+        return odds
+
     # Auxiliary methods
 
     @staticmethod
@@ -128,7 +170,6 @@ class ParserBet365:
 
         TK = data.split(';')[1][3:]
         key = ord(TK[0]) ^ ord(TK[1])
-        # key = self._guess_xor_key(values[0])
 
         for obfuscated_odd in values:
             # Event exists but no odds are available
@@ -225,6 +266,11 @@ class ApiBet365(ApiBase, ParserBet365):
             'draw_no_bet': self._request(
                 f'#AC#B1#C1#D7#E10544#F4#{competition}#H3#'
             ),
+            'asian_handicap' : (self._request(
+                f'#AC#B1#C1#D7#E938#F4#{competition}#H3#'
+            ), self._request(
+                f'#AC#B1#C1#D7#E50138#F4#{competition}#H3#'
+            )),
         }
 
     # Auxiliary methods
