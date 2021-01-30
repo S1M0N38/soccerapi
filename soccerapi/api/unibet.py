@@ -17,7 +17,7 @@ class ApiUnibet(ApiBase, ParserUnibet):
     def url_to_competition(self, url: str) -> str:
         re_unibet = re.compile(
             r'https?://www\.unibet\.\w{2,3}/'
-            'betting/sports/filter/[0-9a-zA-Z/]+/(?:matches)?/?'
+            r'betting/sports/filter/[0-9a-zA-Z/]+/(?:matches)?/?'
         )
         if re_unibet.match(url):
             return '/'.join(url.split('/')[7:9])

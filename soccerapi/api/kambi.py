@@ -99,10 +99,10 @@ class ParserKambi:
 
             if 'groups' in country:
                 for league in country['groups']:
-                    link = f'{base_url}{country["termKey"]}/{league["termKey"]}'
+                    link = f'{base_url}{country["termKey"]}/{league["termKey"]}/'
                     table[country['name']][league['name']] = link
             else:
-                link = f'{base_url}{country["termKey"]}'
+                link = f'{base_url}{country["termKey"]}/'
                 table[country['name']][country['name']] = link
 
         return table

@@ -27,7 +27,7 @@ class Api888Sport(ApiBase, Parser888Sport):
 
     def competitions(
         self,
-        base_url='https://www.888sport.com/football/#/filter/football/',
+        base_url='https://www.888sport.com/#/filter/football/',
         market='IT',
     ) -> Dict:
         url = 'https://eu-offering.kambicdn.org/offering/v2018/888/group.json'
