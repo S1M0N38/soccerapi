@@ -31,14 +31,18 @@ Use your favorite python package manager (like *pip*, *pipenv*, *poetry*). For
 example if you use *pip* type in your terminal:
 
 ```bash
-pip install soccerapi
+pip install --upgrade soccerapi
 ```
+
+It's important to keep soccerapi updated to the last version because bookmakers
+sometimes change their website so soccerapi could break. We the last version on
+the master branch we try to keep up.
 
 ------------------------------------------------------------------------------
 
 Alternatively, if you want a kind of testing/developing setup, you can install
-Soccer API directly from source code by first cloning the repository from
-github and then install dev dependencies
+soccerapi directly from source code by first cloning the repository from
+GitHub and then install dev dependencies
 ([poetry](https://python-poetry.org/) is required)
 
 ```bash
@@ -47,7 +51,7 @@ cd soccerapi
 poetry install
 ```
 
-and then activate the environment
+Finally activate the environment
 
 ```bash
 poetry shell
@@ -96,17 +100,46 @@ print(odds)
 
 The *odds* method return a list of next events of the request competition
 (in the example: the url points to *italy-serie_a*, try to open on your
-browser). To get these url, open the bookmaker site and browser to competitions
-you want to scrape: that's the urls you have to pass to *odds()*.
+browser).
 
-For example urls for *england-premier_league* are:
+To get a dict of valid urls that you can pass to `odds()` use the method
+`competitions()`.
 
-- **bet365** `https://www.bet365.it/#/AC/B1/C1/D13/E51761579/F2/`
-- **888sport** `https://www.888sport.com/#/filter/football/england/premier_league`
-- **unibet** `https://www.unibet.com/betting/sports/filter/football/england/premier_league/matches`
+```python
+odds = api.competitions()
+```
 
-(note that these are urls that works for me, maybe your urls are not `.it` but
-`.com`)
+```python
+{
+
+'Algeria': {
+    'Ligue 1': 'https://www.888sport.com/#/filter/football/algeria/ligue_1',
+    'Ligue 1 U21': 'https://www.888sport.com/#/filter/football/algeria/ligue_1_u21'
+},
+
+'Argentina': {
+    'Primera D Metropolitana': 'https://www.888sport.com/#/filter/football/argentina/primera_d_metropolitana'
+},
+
+'Australia': {
+    'A-League': 'https://www.888sport.com/#/filter/football/australia/a-league',
+    'W-League (W)': 'https://www.888sport.com/#/filter/football/australia/w-league__w_'
+},
+
+...
+
+}
+```
+
+This python dict is dynamically generated every time the `competitions()` method
+is run.  This method crawls the bookmaker site looking for the available
+competitions and extract theirs urls.
+
+For some bookmakers (bet365) many http requests are perform by `competitions()`
+so there is the risk to receive an IP ban. Use this method we wisely
+(e.g. store the competitions in a json file and update it only when necessary).
+In addition the urls for some bookmakers (bet365) do not stay constant for a
+given competition and this is the main reason why we introduced `competitions()`.
 
 ### Country restriction
 
