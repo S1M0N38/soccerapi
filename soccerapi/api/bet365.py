@@ -116,6 +116,38 @@ class ParserBet365:
 
         return odds
 
+    def under_over(self, data: str) -> List:
+        odds = []
+
+        # parse events for U/O2.5 different from the others
+        events = data.split('MG;')[2:-1]
+
+        datetimes = [event.split('BC=')[1][:14] for event in events]
+        datetimes = [datetime.strptime(dt, '%Y%m%d%H%M%S') for dt in datetimes]
+
+        matches = [event.split('NA=')[1].split(';')[0] for event in events]
+        home_teams = [match.split(' v ')[0] for match in matches]
+        away_teams = [match.split(' v ')[1] for match in matches]
+
+        events = []
+        for dt, home_team, away_team in zip(datetimes, home_teams, away_teams):
+            if dt > datetime.utcnow():
+                events.append(
+                    {'time': dt, 'home_team': home_team, 'away_team': away_team}
+                )
+
+        under_over = self._parse_odds(data)
+
+        le = len(events)
+        assert le == len(under_over) / 2
+        over = under_over[:le]
+        under = under_over[le:]
+
+        for event, over, under in zip(events, over, under):
+            odds.append({**event, 'odds': {'O2.5': over, 'U2.5': over}})
+
+        return odds
+
     # Auxiliary methods
 
     @staticmethod
@@ -266,11 +298,14 @@ class ApiBet365(ApiBase, ParserBet365):
             'draw_no_bet': self._request(
                 f'#AC#B1#C1#D7#E10544#F4#{competition}#H3#'
             ),
-            'asian_handicap' : (self._request(
+            'asian_handicap': (self._request(
                 f'#AC#B1#C1#D7#E938#F4#{competition}#H3#'
             ), self._request(
                 f'#AC#B1#C1#D7#E50138#F4#{competition}#H3#'
             )),
+            'under_over': self._request(
+                f'#AC#B1#C1#D7#E981#F4#{competition}#H3#'
+            ),
         }
 
     # Auxiliary methods
