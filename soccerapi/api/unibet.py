@@ -38,6 +38,7 @@ class ApiUnibet(ApiBase, ParserUnibet):
     def requests(self, competition: str) -> Tuple[Dict]:
         return {
             'full_time_result': self._request(competition, 12579),
+            'under_over': self._request(competition, 12580),
             'both_teams_to_score': self._request(competition, 11942),
             'double_chance': self._request(competition, 12220),
         }

@@ -8,6 +8,7 @@ class ParserKambi:
 
     def full_time_result(self, data: Dict) -> List:
         """ Parse the raw json requests for full_time_result """
+        with open('data.txt', 'w') as f: f.write(str(data))
 
         odds = []
         for event in data['events']:
@@ -28,6 +29,31 @@ class ParserKambi:
                     'home_team': event['event']['homeName'],
                     'away_team': event['event']['awayName'],
                     'odds': full_time_result,
+                }
+            )
+        return odds
+
+    def under_over(self, data: Dict) -> List:
+        """ Parse the raw json requests for under_over """
+
+        odds = []
+        for event in data['events']:
+            if event['event']['state'] == 'STARTED':
+                continue
+            try:
+                under_over = {
+                    'O2.5': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    'U2.5': event['betOffers'][0]['outcomes'][1].get('odds'),
+                }
+            except IndexError:
+                under_over = None
+
+            odds.append(
+                {
+                    'time': event['event']['start'],
+                    'home_team': event['event']['homeName'],
+                    'away_team': event['event']['awayName'],
+                    'odds': under_over,
                 }
             )
         return odds
