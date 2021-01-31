@@ -44,9 +44,10 @@ class ApiBase(abc.ABC):
 
         for category, events in odds_to_merge.items():
             for i, event in enumerate(events):
-                assert event['home_team'] == odds[i]['home_team']
-                assert event['away_team'] == odds[i]['away_team']
-                odds[i][category] = event['odds']
+                # needed check for no odds for some match in some markets
+                if event['home_team'] == odds[i]['home_team'] and \
+                   event['away_team'] == odds[i]['away_team']:
+                    odds[i][category] = event['odds']
 
         return odds
 

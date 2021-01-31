@@ -8,7 +8,6 @@ class ParserKambi:
 
     def full_time_result(self, data: Dict) -> List:
         """ Parse the raw json requests for full_time_result """
-        with open('data.txt', 'w') as f: f.write(str(data))
 
         odds = []
         for event in data['events']:
