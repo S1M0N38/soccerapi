@@ -22,8 +22,8 @@ class ParserBet365:
         le = len(events)
         assert le == len(full_time_result) / 3
         _1s = full_time_result[:le]
-        _Xs = full_time_result[le : 2 * le]
-        _2s = full_time_result[2 * le :]
+        _Xs = full_time_result[le: 2 * le]
+        _2s = full_time_result[2 * le:]
 
         for event, _1, _X, _2 in zip(events, _1s, _Xs, _2s):
             odds.append({**event, 'odds': {'1': _1, 'X': _X, '2': _2}})
@@ -36,7 +36,7 @@ class ParserBet365:
 
         assert len(events) == len(both_teams_to_score) / 2
         yess = both_teams_to_score[: len(events)]
-        nos = both_teams_to_score[len(events) :]
+        nos = both_teams_to_score[len(events):]
 
         for event, yes, no in zip(events, yess, nos):
             odds.append({**event, 'odds': {'yes': yes, 'no': no}})
@@ -51,8 +51,8 @@ class ParserBet365:
         le = len(events)
         assert le == len(double_chance) / 3
         _1Xs = double_chance[:le]
-        _2Xs = double_chance[le : 2 * le]
-        _12s = double_chance[2 * le :]
+        _2Xs = double_chance[le: 2 * le]
+        _12s = double_chance[2 * le:]
 
         for event, _1X, _2X, _12 in zip(events, _1Xs, _2Xs, _12s):
             odds.append({**event, 'odds': {'1X': _1X, '12': _12, '2X': _2X}})
@@ -91,13 +91,13 @@ class ParserBet365:
         zipped = zip(events, home_handicaps, away_handicaps, _1, _2)
         for event, hH, aH, _1, _2 in zipped:
             odds.append({**event, 'odds': {
-                '1': {hH : _1},
-                '2': {aH : _2},
+                '1': {hH: _1},
+                '2': {aH: _2},
             }})
 
         # parsing odds for alternative asian handicap: data[1]
         events = data[1].split('MG;')[2:-1]
-        le = len(events) # potentially different from the one at line 83
+        le = len(events)  # potentially different from the one at line 83
 
         alt_asian_handicaps = self._parse_odds(data[1])
         for i, odd, event in zip(range(le), odds[:le], events):
