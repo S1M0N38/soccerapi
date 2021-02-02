@@ -1,12 +1,13 @@
-import asyncio
+# import asyncio
 import re
 from datetime import datetime
 from typing import Dict, List, Tuple
 
 import requests
-from pyppeteer import launch
 
 from .base import ApiBase, NoOddsError
+
+# from pyppeteer import launch
 
 
 class ParserBet365:
@@ -22,8 +23,8 @@ class ParserBet365:
         le = len(events)
         assert le == len(full_time_result) / 3
         _1s = full_time_result[:le]
-        _Xs = full_time_result[le: 2 * le]
-        _2s = full_time_result[2 * le:]
+        _Xs = full_time_result[le : 2 * le]
+        _2s = full_time_result[2 * le :]
 
         for event, _1, _X, _2 in zip(events, _1s, _Xs, _2s):
             odds.append({**event, 'odds': {'1': _1, 'X': _X, '2': _2}})
@@ -36,7 +37,7 @@ class ParserBet365:
 
         assert len(events) == len(both_teams_to_score) / 2
         yess = both_teams_to_score[: len(events)]
-        nos = both_teams_to_score[len(events):]
+        nos = both_teams_to_score[len(events) :]
 
         for event, yes, no in zip(events, yess, nos):
             odds.append({**event, 'odds': {'yes': yes, 'no': no}})
@@ -51,8 +52,8 @@ class ParserBet365:
         le = len(events)
         assert le == len(double_chance) / 3
         _1Xs = double_chance[:le]
-        _2Xs = double_chance[le: 2 * le]
-        _12s = double_chance[2 * le:]
+        _2Xs = double_chance[le : 2 * le]
+        _12s = double_chance[2 * le :]
 
         for event, _1X, _2X, _12 in zip(events, _1Xs, _2Xs, _12s):
             odds.append({**event, 'odds': {'1X': _1X, '12': _12, '2X': _2X}})
@@ -90,10 +91,15 @@ class ParserBet365:
 
         zipped = zip(events, home_handicaps, away_handicaps, _1, _2)
         for event, hH, aH, _1, _2 in zipped:
-            odds.append({**event, 'odds': {
-                '1': {hH: _1},
-                '2': {aH: _2},
-            }})
+            odds.append(
+                {
+                    **event,
+                    'odds': {
+                        '1': {hH: _1},
+                        '2': {aH: _2},
+                    },
+                }
+            )
 
         # parsing odds for alternative asian handicap: data[1]
         events = data[1].split('MG;')[2:-1]
@@ -104,8 +110,8 @@ class ParserBet365:
             # find leght of odds per event
             lo = len(self._get_values(event, 'OD')) // 2
 
-            _1 = alt_asian_handicaps[i*lo:lo*(i+1)]
-            _2 = alt_asian_handicaps[lo*(i+1):lo*(i+2)]
+            _1 = alt_asian_handicaps[i * lo : lo * (i + 1)]
+            _2 = alt_asian_handicaps[lo * (i + 1) : lo * (i + 2)]
 
             home_handicaps = self._get_values(event, 'NA')[:lo]
             away_handicaps = self._get_values(event, 'NA')[lo:]
@@ -234,25 +240,34 @@ class ParserBet365:
 class ApiBet365(ApiBase, ParserBet365):
     """ The ApiBase implementation of bet365.com """
 
-    def __init__(self):
+    def __init__(self, headers, cookies):
         self.name = 'bet365'
         self.session = requests.Session()
-        self._token = ''
-        self._token_expires = 0
-        config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
-        cookies = {'aps03': 'ct=97&lng=6'}
-        headers = {
-            'Connection': 'keep-alive',
-            'Origin': 'https://www.bet365.it',
-            'User-Agent': (
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/79.0.3945.117 Safari/537.36'
-            ),
-            'X-Net-Sync-Term': self.token,
-        }
         self.session.headers.update(headers)
-        self.session.get(config_url, cookies=cookies)
+        for cookie in cookies:
+            self.session.cookies.set(cookie['name'], cookie['value'])
+
+        # from pprint import pprint
+
+        # pprint(self.session.headers)
+        # pprint(self.session.cookies)
+
+        # self._token = ''
+        # self._token_expires = 0
+        # config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
+        # cookies = {'aps03': 'ct=97&lng=6'}
+        # headers = {
+        #     'Connection': 'keep-alive',
+        #     'Origin': 'https://www.bet365.it',
+        #     'User-Agent': (
+        #         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) '
+        #         'AppleWebKit/537.36 (KHTML, like Gecko) '
+        #         'Chrome/79.0.3945.117 Safari/537.36'
+        #     ),
+        #     'X-Net-Sync-Term': self.token,
+        # }
+        # self.session.headers.update(headers)
+        # self.session.get(config_url, cookies=cookies)
 
     def url_to_competition(self, url: str) -> str:
         re_bet365 = re.compile(
@@ -268,8 +283,9 @@ class ApiBet365(ApiBase, ParserBet365):
     def competitions(self, base_url='https://www.bet365.com/#') -> str:
         table = {}
         table_country = self._request(
-            '#AM#B1#C1#D7#E40#F4#G97865356#H3#Z^1#Y^1_7_40_4_97865356#S1#',
+            '#AM#B1#C1#D7#E40#F4#G96703929#H3#Z^1#Y^1_7_40_4_96703929#S1#',
         ).split('|')
+
         for row in table_country[2:-1]:
             country = row.split('NA=')[1].split(';')[0]
             country_link = row.split('PD=')[1].split(';')[0]
@@ -298,11 +314,10 @@ class ApiBet365(ApiBase, ParserBet365):
             'draw_no_bet': self._request(
                 f'#AC#B1#C1#D7#E10544#F4#{competition}#H3#'
             ),
-            'asian_handicap': (self._request(
-                f'#AC#B1#C1#D7#E938#F4#{competition}#H3#'
-            ), self._request(
-                f'#AC#B1#C1#D7#E50138#F4#{competition}#H3#'
-            )),
+            'asian_handicap': (
+                self._request(f'#AC#B1#C1#D7#E938#F4#{competition}#H3#'),
+                self._request(f'#AC#B1#C1#D7#E50138#F4#{competition}#H3#'),
+            ),
             'under_over': self._request(
                 f'#AC#B1#C1#D7#E981#F4#{competition}#H3#'
             ),
@@ -310,38 +325,38 @@ class ApiBet365(ApiBase, ParserBet365):
 
     # Auxiliary methods
 
-    @property
-    def token(self):
-        """X-Net-Sync-Term, a header required in every http request."""
+    # @property
+    # def token(self):
+    #     """X-Net-Sync-Term, a header required in every http request."""
 
-        if self._token_expires > datetime.now().timestamp():
-            return self._token
-        else:
-            loop = asyncio.get_event_loop()
-            self._token = loop.run_until_complete(self._get_token())
-            self._token_expires = datetime.now().timestamp() + 600
-            return self._token
+    #     if self._token_expires > datetime.now().timestamp():
+    #         return self._token
+    #     else:
+    #         loop = asyncio.get_event_loop()
+    #         self._token = loop.run_until_complete(self._get_token())
+    #         self._token_expires = datetime.now().timestamp() + 600
+    #         return self._token
 
-    async def _get_token(self):
-        """Spawn a headless web browser instance, navigate to bet365 and get
-        x-net-sync-term which is a header require for every requests.
-        This token lasts for 15 minutes, so every 10 minutes this
-        method is called.
-        """
+    # async def _get_token(self):
+    #     """Spawn a headless web browser instance, navigate to bet365 and get
+    #     x-net-sync-term which is a header require for every requests.
+    #     This token lasts for 15 minutes, so every 10 minutes this
+    #     method is called.
+    #     """
 
-        browser = await launch(
-            headless=True,
-            args=['--disable-blink-features=AutomationControlled'],
-        )
-        page = (await browser.pages())[0]
-        await page.setUserAgent(
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
-        )
-        await page.goto("https://www.bet365.com")
-        request = await page.waitForRequest(lambda r: 'SportsBook' in r.url)
-        await browser.close()
-        return request.headers['x-net-sync-term']
+    #     browser = await launch(
+    #         headless=True,
+    #         args=['--disable-blink-features=AutomationControlled'],
+    #     )
+    #     page = (await browser.pages())[0]
+    #     await page.setUserAgent(
+    #         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+    #         '(KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
+    #     )
+    #     await page.goto("https://www.bet365.com")
+    #     request = await page.waitForRequest(lambda r: 'SportsBook' in r.url)
+    #     await browser.close()
+    #     return request.headers['x-net-sync-term']
 
     def _request(self, pd: str) -> str:
         """Make the single request using the active session.
