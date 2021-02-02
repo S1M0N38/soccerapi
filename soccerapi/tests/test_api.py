@@ -1,13 +1,14 @@
 import abc
 import json
+import pathlib
 from pprint import pprint
 
 import pytest
+import requests
 from soccerapi.api import Api888Sport, ApiBet365, ApiUnibet
 
-# from urls import urls_888sport, urls_bet365, urls_unibet
-
-with open('urls.json') as f:
+filename = pathlib.Path(__file__).parent.absolute() / 'urls.json'
+with open(filename) as f:
     urls = json.load(f)
 
 
@@ -41,7 +42,8 @@ class TestApiBet365(BaseTest):
     name = 'bet365'
 
     def setup(self):
-        self.api = ApiBet365()
+        response = requests.get('http://localhost:5000/bet365').json()
+        self.api = ApiBet365(response['headers'], response['cookies'])
 
     @pytest.mark.parametrize('url', urls['bet365'])
     def test_odds(self, url):
