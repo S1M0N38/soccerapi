@@ -90,7 +90,7 @@ def generate_urls():
         'unibet': generate_unibet_urls(),
     }
 
-    print('Successfully test urls')
+    print('Successfully generated urls for testing')
 
     here = pathlib.Path(__file__).parent.absolute()
     filename = here / 'soccerapi' / 'tests' / 'urls.json'
