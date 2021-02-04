@@ -1,4 +1,3 @@
-# import asyncio
 import re
 from datetime import datetime
 from typing import Dict, List, Tuple
@@ -6,8 +5,6 @@ from typing import Dict, List, Tuple
 import requests
 
 from .base import ApiBase, NoOddsError
-
-# from pyppeteer import launch
 
 
 class ParserBet365:
@@ -238,7 +235,9 @@ class ParserBet365:
 
 
 class ApiBet365(ApiBase, ParserBet365):
-    """ The ApiBase implementation of bet365.com """
+    """The ApiBase implementation of bet365.com
+    In order to init a new Session for bet365 cookies and headers are required.
+    """
 
     def __init__(self, headers, cookies):
         self.name = 'bet365'
@@ -246,28 +245,6 @@ class ApiBet365(ApiBase, ParserBet365):
         self.session.headers.update(headers)
         for cookie in cookies:
             self.session.cookies.set(cookie['name'], cookie['value'])
-
-        # from pprint import pprint
-
-        # pprint(self.session.headers)
-        # pprint(self.session.cookies)
-
-        # self._token = ''
-        # self._token_expires = 0
-        # config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
-        # cookies = {'aps03': 'ct=97&lng=6'}
-        # headers = {
-        #     'Connection': 'keep-alive',
-        #     'Origin': 'https://www.bet365.it',
-        #     'User-Agent': (
-        #         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) '
-        #         'AppleWebKit/537.36 (KHTML, like Gecko) '
-        #         'Chrome/79.0.3945.117 Safari/537.36'
-        #     ),
-        #     'X-Net-Sync-Term': self.token,
-        # }
-        # self.session.headers.update(headers)
-        # self.session.get(config_url, cookies=cookies)
 
     def url_to_competition(self, url: str) -> str:
         re_bet365 = re.compile(
@@ -324,39 +301,6 @@ class ApiBet365(ApiBase, ParserBet365):
         }
 
     # Auxiliary methods
-
-    # @property
-    # def token(self):
-    #     """X-Net-Sync-Term, a header required in every http request."""
-
-    #     if self._token_expires > datetime.now().timestamp():
-    #         return self._token
-    #     else:
-    #         loop = asyncio.get_event_loop()
-    #         self._token = loop.run_until_complete(self._get_token())
-    #         self._token_expires = datetime.now().timestamp() + 600
-    #         return self._token
-
-    # async def _get_token(self):
-    #     """Spawn a headless web browser instance, navigate to bet365 and get
-    #     x-net-sync-term which is a header require for every requests.
-    #     This token lasts for 15 minutes, so every 10 minutes this
-    #     method is called.
-    #     """
-
-    #     browser = await launch(
-    #         headless=True,
-    #         args=['--disable-blink-features=AutomationControlled'],
-    #     )
-    #     page = (await browser.pages())[0]
-    #     await page.setUserAgent(
-    #         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
-    #         '(KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
-    #     )
-    #     await page.goto("https://www.bet365.com")
-    #     request = await page.waitForRequest(lambda r: 'SportsBook' in r.url)
-    #     await browser.close()
-    #     return request.headers['x-net-sync-term']
 
     def _request(self, pd: str) -> str:
         """Make the single request using the active session.
