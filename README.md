@@ -3,22 +3,22 @@
 [![PyPI version](https://badge.fury.io/py/soccerapi.svg)](https://badge.fury.io/py/soccerapi)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-soccerapi (Application Programming Interface) is a simple wrapper build on top
+Soccerapi (Application Programming Interface) is a simple wrapper build on top
 of some bookmakers (888sport, bet365 and Unibet) in order to get data about
 soccer (aka football) odds using python commands.
 
 ## ⚽️ The goal
 
-The goal of the project is provided an enjoyable way to get odds data for
-different soccer leagues. Usually, if someone wants to get these types of data,
-have to build by him self (and from scratch) a program able to scrape the
-betting site or use some kind paid API. Soccer API try to address this problem.
+The goal of the project is to provide an enjoyable way to get odds data for
+different soccer leagues. If you want to get these types of data you usually
+have to build a program by yourself (and from scratch) being able to scrape the
+betting site or to use some kind of paid API. Soccer API try to address this problem.
 
 ## 💡 The philosophy
 
 Keep it simple. Simple API, simple http requests, few dependencies. In the past
-I have tried to build some heavy framework able to scraping site (using
-selenium able to handle complex JavaScript): was an *unmaintainable nightmare*.
+we tried to build some heavy framework, able to scrape dinamic sites (using
+selenium, handling complex JavaScript): was an *unmaintainable nightmare*.
 
 ## 📘 The documentation
 
@@ -56,6 +56,17 @@ Finally activate the environment
 ```bash
 poetry shell
 ```
+
+------------------------------------------------------------------------------
+
+In order to obtain data from [Bet365](https://www.bet365.com/) you need to 
+run a docker which posts on a local server a needed header to make requests
+to the Bet365 api. The docker run separeately from the api since it is written
+in JavaScript and it runs a *chromedirver* to run JavaScript and acquire the
+header.
+
+Checkout [soccerapi-server](https://github.com/S1M0N38/soccerapi-server) to 
+install the docker and run it.
 
 ### Usage
 
@@ -98,15 +109,16 @@ print(odds)
 ]
 ```
 
-The *odds* method return a list of next events of the request competition
-(in the example: the url points to *italy-serie_a*, try to open on your
-browser).
+The *odds()* method return a list of next events of the request competition
+(in the example: the url points to *italy-serie_a*)
 
 To get a dict of valid urls that you can pass to `odds()` use the method
 `competitions()`.
 
 ```python
 odds = api.competitions()
+
+print(odds)
 ```
 
 ```python
@@ -133,22 +145,24 @@ odds = api.competitions()
 
 This python dict is dynamically generated every time the `competitions()` method
 is run.  This method crawls the bookmaker site looking for the available
-competitions and extract theirs urls.
+competitions and extract the url for every competitions offered by the bookmaker.
 
-For some bookmakers (bet365) many http requests are perform by `competitions()`
-so there is the risk to receive an IP ban. Use this method we wisely
-(e.g. store the competitions in a json file and update it only when necessary).
-In addition the urls for some bookmakers (bet365) do not stay constant for a
-given competition and this is the main reason why we introduced `competitions()`.
+For some bookmakers (Bet365) many http requests are perform by `competitions()`,
+so there is the risk of receiving an IP ban. Use this method wisely
+(e.g. store the competitions in a json file and update them only when necessary).
+
+The main reasons we introduced the `competitions()` method is due to the fact that 
+some bookmakers (Bet365) change the url for a competitions over time in order to 
+contrast bot scraping, so do not trust on a static list of urls for every bookmaker.
 
 ### Country restriction
 
 The regulation of online gambling varies from country to country. There are
-different versions of the betting site depending on the provenience of your
+different versions of the bookmaker site depending on the provenience of your
 http request. Moreover, most bookmakers implement some kind of VPN detection
-that block VPN-http requests. Due to this constrains it's difficult to test
-soccerapi for worldwide usability. Here is reported some results about bookmaker
-accessibility from various country.
+which block VPN-http requests. Due to this constrains it's difficult to test
+soccerapi for worldwide usability. In the following are reported some results
+of the availability of bookmaker in different countries.
 
 |            | bet365 | 888sport / unibet |
 |----------- | :----: | :---------------: |
