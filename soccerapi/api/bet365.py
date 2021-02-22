@@ -239,12 +239,9 @@ class ApiBet365(ApiBase, ParserBet365):
     In order to init a new Session for bet365 cookies and headers are required.
     """
 
-    def __init__(self, headers, cookies):
+    def __init__(self):
         self.name = 'bet365'
         self.session = requests.Session()
-        self.session.headers.update(headers)
-        for cookie in cookies:
-            self.session.cookies.set(cookie['name'], cookie['value'])
 
     def url_to_competition(self, url: str) -> str:
         re_bet365 = re.compile(
@@ -307,6 +304,11 @@ class ApiBet365(ApiBase, ParserBet365):
         The pd is a string that contains information about competition
         and market (i.e. 'full_time_result', 'double_chance', ...)
         """
+
+        response = requests.get('http://localhost:5000/bet365').json()
+        self.session.headers.update(response['headers'])
+        for cookie in response['cookies']:
+            self.session.cookies.set(cookie['name'], cookie['value'])
 
         url = 'https://www.bet365.it/SportsBook.API/web'
         params = (

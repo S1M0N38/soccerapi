@@ -42,8 +42,7 @@ class TestApiBet365(BaseTest):
     name = 'bet365'
 
     def setup(self):
-        response = requests.get('http://localhost:5000/bet365').json()
-        self.api = ApiBet365(response['headers'], response['cookies'])
+        self.api = ApiBet365()
 
     @pytest.mark.parametrize('url', urls['bet365'])
     def test_odds(self, url):
