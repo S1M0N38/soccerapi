@@ -46,12 +46,12 @@ def generate_888sport_urls():
     api = Api888Sport()
     competitions = api.competitions()
     return [
-        competitions['Italy']['Serie A'],
-        competitions['Italy']['Serie B'],
-        competitions['England']['Premier League'],
-        competitions['England']['The Championship'],
-        competitions['Germany']['Bundesliga'],
-        competitions['Germany']['2. Bundesliga'],
+        competitions['Italy'].get('Serie A'),
+        competitions['Italy'].get('Serie B'),
+        competitions['England'].get('Premier League'),
+        competitions['England'].get('The Championship'),
+        competitions['Germany'].get('Bundesliga'),
+        competitions['Germany'].get('2. Bundesliga'),
     ]
 
 
@@ -60,12 +60,12 @@ def generate_bet365_urls():
     api = ApiBet365(response['headers'], response['cookies'])
     competitions = api.competitions()
     return [
-        competitions['Italy']['Italy Serie A'],
-        competitions['Italy']['Italy Serie B'],
-        competitions['United Kingdom']['England Premier League'],
-        competitions['United Kingdom']['England Championship'],
-        competitions['Germany']['Germany Bundesliga I'],
-        competitions['Germany']['Germany Bundesliga II'],
+        competitions['Italy'].get('Italy Serie A'),
+        competitions['Italy'].get('Italy Serie B'),
+        competitions['United Kingdom'].get('England Premier League'),
+        competitions['United Kingdom'].get('England Championship'),
+        competitions['Germany'].get('Germany Bundesliga I'),
+        competitions['Germany'].get('Germany Bundesliga II'),
     ]
 
 
@@ -73,12 +73,12 @@ def generate_unibet_urls():
     api = ApiUnibet()
     competitions = api.competitions()
     return [
-        competitions['Italy']['Serie A'],
-        competitions['Italy']['Serie B'],
-        competitions['England']['Premier League'],
-        competitions['England']['The Championship'],
-        competitions['Germany']['Bundesliga'],
-        competitions['Germany']['2. Bundesliga'],
+        competitions['Italy'].get('Serie A'),
+        competitions['Italy'].get('Serie B'),
+        competitions['England'].get('Premier League'),
+        competitions['England'].get('The Championship'),
+        competitions['Germany'].get('Bundesliga'),
+        competitions['Germany'].get('2. Bundesliga'),
     ]
 
 

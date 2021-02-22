@@ -11,7 +11,7 @@ class ParserKambi:
 
         odds = []
         for event in data['events']:
-            if event['event']['state'] == 'STARTED':
+            if event['event'].get('state') == 'STARTED':
                 continue
             try:
                 full_time_result = {
@@ -24,9 +24,9 @@ class ParserKambi:
 
             odds.append(
                 {
-                    'time': event['event']['start'],
-                    'home_team': event['event']['homeName'],
-                    'away_team': event['event']['awayName'],
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
                     'odds': full_time_result,
                 }
             )
@@ -37,7 +37,7 @@ class ParserKambi:
 
         odds = []
         for event in data['events']:
-            if event['event']['state'] == 'STARTED':
+            if event['event'].get('state') == 'STARTED':
                 continue
             try:
                 under_over = {
@@ -49,9 +49,9 @@ class ParserKambi:
 
             odds.append(
                 {
-                    'time': event['event']['start'],
-                    'home_team': event['event']['homeName'],
-                    'away_team': event['event']['awayName'],
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
                     'odds': under_over,
                 }
             )
@@ -62,7 +62,7 @@ class ParserKambi:
 
         odds = []
         for event in data['events']:
-            if event['event']['state'] == 'STARTED':
+            if event['event'].get('state') == 'STARTED':
                 continue
             try:
                 both_teams_to_score = {
@@ -73,9 +73,9 @@ class ParserKambi:
                 both_teams_to_score = None
             odds.append(
                 {
-                    'time': event['event']['start'],
-                    'home_team': event['event']['homeName'],
-                    'away_team': event['event']['awayName'],
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
                     'odds': both_teams_to_score,
                 }
             )
@@ -86,7 +86,7 @@ class ParserKambi:
 
         odds = []
         for event in data['events']:
-            if event['event']['state'] == 'STARTED':
+            if event['event'].get('state') == 'STARTED':
                 continue
             try:
                 double_chance = {
@@ -98,9 +98,9 @@ class ParserKambi:
                 double_chance = None
             odds.append(
                 {
-                    'time': event['event']['start'],
-                    'home_team': event['event']['homeName'],
-                    'away_team': event['event']['awayName'],
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
                     'odds': double_chance,
                 }
             )
