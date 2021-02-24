@@ -11,7 +11,7 @@ class ParserKambi:
 
         odds = []
         for event in data['events']:
-            if event['event']['state'] == 'STARTED':
+            if event['event'].get('state') == 'STARTED':
                 continue
             try:
                 full_time_result = {
@@ -24,10 +24,35 @@ class ParserKambi:
 
             odds.append(
                 {
-                    'time': event['event']['start'],
-                    'home_team': event['event']['homeName'],
-                    'away_team': event['event']['awayName'],
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
                     'odds': full_time_result,
+                }
+            )
+        return odds
+
+    def under_over(self, data: Dict) -> List:
+        """ Parse the raw json requests for under_over """
+
+        odds = []
+        for event in data['events']:
+            if event['event'].get('state') == 'STARTED':
+                continue
+            try:
+                under_over = {
+                    'O2.5': event['betOffers'][0]['outcomes'][0].get('odds'),
+                    'U2.5': event['betOffers'][0]['outcomes'][1].get('odds'),
+                }
+            except IndexError:
+                under_over = None
+
+            odds.append(
+                {
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
+                    'odds': under_over,
                 }
             )
         return odds
@@ -37,7 +62,7 @@ class ParserKambi:
 
         odds = []
         for event in data['events']:
-            if event['event']['state'] == 'STARTED':
+            if event['event'].get('state') == 'STARTED':
                 continue
             try:
                 both_teams_to_score = {
@@ -48,9 +73,9 @@ class ParserKambi:
                 both_teams_to_score = None
             odds.append(
                 {
-                    'time': event['event']['start'],
-                    'home_team': event['event']['homeName'],
-                    'away_team': event['event']['awayName'],
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
                     'odds': both_teams_to_score,
                 }
             )
@@ -61,7 +86,7 @@ class ParserKambi:
 
         odds = []
         for event in data['events']:
-            if event['event']['state'] == 'STARTED':
+            if event['event'].get('state') == 'STARTED':
                 continue
             try:
                 double_chance = {
@@ -73,10 +98,36 @@ class ParserKambi:
                 double_chance = None
             odds.append(
                 {
-                    'time': event['event']['start'],
-                    'home_team': event['event']['homeName'],
-                    'away_team': event['event']['awayName'],
+                    'time': event['event'].get('start'),
+                    'home_team': event['event'].get('homeName'),
+                    'away_team': event['event'].get('awayName'),
                     'odds': double_chance,
                 }
             )
         return odds
+
+    # Auxiliary methods
+
+    def _parse_competitions(self, base_url: str, data: Dict) -> Dict:
+        """ Parse the raw json request for competitions """
+
+        table = {}
+        for sport in data['group']['groups']:
+            if sport['termKey'] == 'football':
+                football = sport['groups']
+                break
+
+        for country in football:
+
+            if country['name'] not in table:
+                table[country['name']] = {}
+
+            if 'groups' in country:
+                for league in country['groups']:
+                    link = f'{base_url}{country["termKey"]}/{league["termKey"]}/'
+                    table[country['name']][league['name']] = link
+            else:
+                link = f'{base_url}{country["termKey"]}/'
+                table[country['name']][country['name']] = link
+
+        return table

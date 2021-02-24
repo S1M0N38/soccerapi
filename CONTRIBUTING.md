@@ -43,6 +43,14 @@ poetry shell
 Go into soccerapi directory (the same directory where is README.md) and run
 tests with `pytest`.
 
+As you can read in the
+[README](https://github.com/S1M0N38/soccerapi/blob/master/README.md) some
+bookmakers change their urls quite often, so to update the urls to test on
+you should run `pytest` with the `--urls` flag. The `competitions()` method
+run to update the urls, for some bookmakers (bet365), makes many requests to 
+the bookmaker API. Making too many requests could result in an IP ban from
+the bookmaker, then use the `--urls` flag carefully.
+
 ## Writing Api for new bookmaker
 
 Another way to contribute is to write a Api class for a new bookmaker.

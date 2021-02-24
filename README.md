@@ -3,22 +3,22 @@
 [![PyPI version](https://badge.fury.io/py/soccerapi.svg)](https://badge.fury.io/py/soccerapi)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-soccerapi (Application Programming Interface) is a simple wrapper build on top
+Soccerapi (Application Programming Interface) is a simple wrapper build on top
 of some bookmakers (888sport, bet365 and Unibet) in order to get data about
 soccer (aka football) odds using python commands.
 
 ## ⚽️ The goal
 
-The goal of the project is provided an enjoyable way to get odds data for
-different soccer leagues. Usually, if someone wants to get these types of data,
-have to build by him self (and from scratch) a program able to scrape the
-betting site or use some kind paid API. Soccer API try to address this problem.
+The goal of the project is to provide an enjoyable way to get odds data for
+different soccer leagues. If you want to get these types of data you usually
+have to build a program by yourself (and from scratch) being able to scrape the
+betting site or to use some kind of paid API. Soccer API try to address this problem.
 
 ## 💡 The philosophy
 
 Keep it simple. Simple API, simple http requests, few dependencies. In the past
-I have tried to build some heavy framework able to scraping site (using
-selenium able to handle complex JavaScript): was an *unmaintainable nightmare*.
+we tried to build some heavy framework, able to scrape dinamic sites (using
+selenium, handling complex JavaScript): was an *unmaintainable nightmare*.
 
 ## 📘 The documentation
 
@@ -31,14 +31,18 @@ Use your favorite python package manager (like *pip*, *pipenv*, *poetry*). For
 example if you use *pip* type in your terminal:
 
 ```bash
-pip install soccerapi
+pip install --upgrade soccerapi
 ```
+
+It's important to keep soccerapi updated to the last version because bookmakers
+sometimes change their website so soccerapi could break. We the last version on
+the master branch we try to keep up.
 
 ------------------------------------------------------------------------------
 
 Alternatively, if you want a kind of testing/developing setup, you can install
-Soccer API directly from source code by first cloning the repository from
-github and then install dev dependencies
+soccerapi directly from source code by first cloning the repository from
+GitHub and then install dev dependencies
 ([poetry](https://python-poetry.org/) is required)
 
 ```bash
@@ -47,11 +51,22 @@ cd soccerapi
 poetry install
 ```
 
-and then activate the environment
+Finally activate the environment
 
 ```bash
 poetry shell
 ```
+
+------------------------------------------------------------------------------
+
+In order to obtain data from [Bet365](https://www.bet365.com/) you need to 
+run a docker which posts on a local server a needed header to make requests
+to the Bet365 api. The docker run separeately from the api since it is written
+in JavaScript and it runs a *chromedirver* to run JavaScript and acquire the
+header.
+
+Checkout [soccerapi-server](https://github.com/S1M0N38/soccerapi-server) to 
+install the docker and run it.
 
 ### Usage
 
@@ -94,28 +109,60 @@ print(odds)
 ]
 ```
 
-The *odds* method return a list of next events of the request competition
-(in the example: the url points to *italy-serie_a*, try to open on your
-browser). To get these url, open the bookmaker site and browser to competitions
-you want to scrape: that's the urls you have to pass to *odds()*.
+The *odds()* method return a list of next events of the request competition
+(in the example: the url points to *italy-serie_a*)
 
-For example urls for *england-premier_league* are:
+To get a dict of valid urls that you can pass to `odds()` use the method
+`competitions()`.
 
-- **bet365** `https://www.bet365.it/#/AC/B1/C1/D13/E51761579/F2/`
-- **888sport** `https://www.888sport.com/#/filter/football/england/premier_league`
-- **unibet** `https://www.unibet.com/betting/sports/filter/football/england/premier_league/matches`
+```python
+odds = api.competitions()
 
-(note that these are urls that works for me, maybe your urls are not `.it` but
-`.com`)
+print(odds)
+```
+
+```python
+{
+
+'Algeria': {
+    'Ligue 1': 'https://www.888sport.com/#/filter/football/algeria/ligue_1',
+    'Ligue 1 U21': 'https://www.888sport.com/#/filter/football/algeria/ligue_1_u21'
+},
+
+'Argentina': {
+    'Primera D Metropolitana': 'https://www.888sport.com/#/filter/football/argentina/primera_d_metropolitana'
+},
+
+'Australia': {
+    'A-League': 'https://www.888sport.com/#/filter/football/australia/a-league',
+    'W-League (W)': 'https://www.888sport.com/#/filter/football/australia/w-league__w_'
+},
+
+...
+
+}
+```
+
+This python dict is dynamically generated every time the `competitions()` method
+is run.  This method crawls the bookmaker site looking for the available
+competitions and extract the url for every competitions offered by the bookmaker.
+
+For some bookmakers (Bet365) many http requests are perform by `competitions()`,
+so there is the risk of receiving an IP ban. Use this method wisely
+(e.g. store the competitions in a json file and update them only when necessary).
+
+The main reasons we introduced the `competitions()` method is due to the fact that 
+some bookmakers (Bet365) change the url for a competitions over time in order to 
+contrast bot scraping, so do not trust on a static list of urls for every bookmaker.
 
 ### Country restriction
 
 The regulation of online gambling varies from country to country. There are
-different versions of the betting site depending on the provenience of your
+different versions of the bookmaker site depending on the provenience of your
 http request. Moreover, most bookmakers implement some kind of VPN detection
-that block VPN-http requests. Due to this constrains it's difficult to test
-soccerapi for worldwide usability. Here is reported some results about bookmaker
-accessibility from various country.
+which block VPN-http requests. Due to this constrains it's difficult to test
+soccerapi for worldwide usability. In the following are reported some results
+of the availability of bookmaker in different countries.
 
 |            | bet365 | 888sport / unibet |
 |----------- | :----: | :---------------: |

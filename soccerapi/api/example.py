@@ -75,6 +75,9 @@ class ParserExample:
     #
     # def _odds(self, data):
     #   ...
+    #
+    # def _parse_competitions(self, data):
+    #   ...
 
 
 class ApiExample(ApiBase, ParserExample):
@@ -87,11 +90,38 @@ class ApiExample(ApiBase, ParserExample):
         # requests session used to the request to bookmaker site
         self.session = requests.Session()
 
-    def competition(self, url: str) -> str:
+    def url_to_competition(self, url: str) -> str:
         # Parese the bookmaker url containing the competition information
         # using some kind of regex
         ...
         # return 'Italia-SerieA'
+
+    def competitions(self) -> Dict:
+        # Craw the bookmark site and return a python dict of available
+        # competitions. This dict must have this structure
+        # {
+        #     'country1': {
+        #         'league1': 'url1',
+        #         'league2': 'url2',
+        #         ...
+        #     },
+        #     'country2': {
+        #         'league1': 'url1',
+        #         'league2': 'url2',
+        #         ...
+        #     },
+        #     ...
+        # }
+
+        # If there there is only the country and not the league
+        # (e.g. Club Friendly Matches) use the country key also for the league
+        #
+        # {
+        #   'Club Friendly Matches': {'Club Friendly Matches': 'url1'},
+        #   ...
+        # }
+
+        ...
 
     def requests(self, competition: str):
         # Perform requeests to various endpoints in order to get odds

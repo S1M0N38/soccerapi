@@ -1,10 +1,8 @@
-import asyncio
 import re
 from datetime import datetime
 from typing import Dict, List, Tuple
 
 import requests
-from pyppeteer import launch
 
 from .base import ApiBase, NoOddsError
 
@@ -19,12 +17,6 @@ class ParserBet365:
 
         assert len(events) == len(full_time_result) / 3
 
-        # old format, store by rows
-        # _1s = full_time_result[0::3]
-        # _Xs = full_time_result[1::3]
-        # _2s = full_time_result[2::3]
-
-        # new format
         le = len(events)
         assert le == len(full_time_result) / 3
         _1s = full_time_result[:le]
@@ -40,11 +32,6 @@ class ParserBet365:
         events = self._parse_events(data)
         both_teams_to_score = self._parse_odds(data)
 
-        # old format, store by rows
-        # yess = both_teams_to_score[0::2]
-        # nos = both_teams_to_score[1::2]
-
-        # new format
         assert len(events) == len(both_teams_to_score) / 2
         yess = both_teams_to_score[: len(events)]
         nos = both_teams_to_score[len(events) :]
@@ -59,12 +46,6 @@ class ParserBet365:
         events = self._parse_events(data)
         double_chance = self._parse_odds(data)
 
-        # old format, store by rows
-        # _1Xs = double_chance[0::3]
-        # _2Xs = double_chance[1::3]
-        # _12s = double_chance[2::3]
-
-        # new format
         le = len(events)
         assert le == len(double_chance) / 3
         _1Xs = double_chance[:le]
@@ -81,7 +62,6 @@ class ParserBet365:
         events = self._parse_events(data)
         draw_no_bet = self._parse_odds(data)
 
-        # new format
         le = len(events)
         assert le == len(draw_no_bet) / 2
         _1 = draw_no_bet[:le]
@@ -92,6 +72,87 @@ class ParserBet365:
 
         return odds
 
+    def asian_handicap(self, data: Tuple) -> List:
+        # parsing odds for asian handicap : data[0]
+        odds = []
+        events = self._parse_events(data[0])
+        asian_handicap = self._parse_odds(data[0])
+
+        le = len(events)
+        assert le == len(asian_handicap) / 2
+        _1 = asian_handicap[:le]
+        _2 = asian_handicap[le:]
+
+        home_handicaps = self._get_values(data[0], 'HD')[:le]
+        away_handicaps = self._get_values(data[0], 'HD')[le:]
+
+        zipped = zip(events, home_handicaps, away_handicaps, _1, _2)
+        for event, hH, aH, _1, _2 in zipped:
+            odds.append(
+                {
+                    **event,
+                    'odds': {
+                        '1': {hH: _1},
+                        '2': {aH: _2},
+                    },
+                }
+            )
+
+        # parsing odds for alternative asian handicap: data[1]
+        events = data[1].split('MG;')[2:-1]
+        le = len(events)  # potentially different from the one at line 83
+
+        alt_asian_handicaps = self._parse_odds(data[1])
+        for i, odd, event in zip(range(le), odds[:le], events):
+            # find leght of odds per event
+            lo = len(self._get_values(event, 'OD')) // 2
+
+            _1 = alt_asian_handicaps[i * lo : lo * (i + 1)]
+            _2 = alt_asian_handicaps[lo * (i + 1) : lo * (i + 2)]
+
+            home_handicaps = self._get_values(event, 'NA')[:lo]
+            away_handicaps = self._get_values(event, 'NA')[lo:]
+
+            for hH, aH, _1, _2 in zip(home_handicaps, away_handicaps, _1, _2):
+                odd['odds']['1'][hH] = _1
+                odd['odds']['2'][hH] = _2
+
+        return odds
+
+    def under_over(self, data: str) -> List:
+        odds = []
+
+        # parse events for U/O2.5 different from the others
+        events = data.split('MG;')[2:-1]
+
+        datetimes = [event.split('BC=')[1][:14] for event in events]
+        datetimes = [datetime.strptime(dt, '%Y%m%d%H%M%S') for dt in datetimes]
+
+        matches = [event.split('NA=')[1].split(';')[0] for event in events]
+        home_teams = [match.split(' v ')[0] for match in matches]
+        away_teams = [match.split(' v ')[1] for match in matches]
+
+        events = []
+        for dt, home_team, away_team in zip(datetimes, home_teams, away_teams):
+            if dt > datetime.utcnow():
+                events.append(
+                    {'time': dt, 'home_team': home_team, 'away_team': away_team}
+                )
+
+        under_over = self._parse_odds(data)
+
+        le = len(events)
+        assert le == len(under_over) / 2
+        over = under_over[:le]
+        under = under_over[le:]
+
+        for event, over, under in zip(events, over, under):
+            odds.append({**event, 'odds': {'O2.5': over, 'U2.5': over}})
+
+        return odds
+
+    # Auxiliary methods
+
     @staticmethod
     def _xor(msg: str, key: int) -> str:
         """ Applying xor algo to a message in order to make it readable """
@@ -100,19 +161,6 @@ class ParserBet365:
         for char in msg:
             value += chr(ord(char) ^ key)
         return value
-
-    # def _guess_xor_key(self, encoded_msg: str) -> int:
-    #     """ Try different key (int) until the msg is human readable """
-
-    #     for key in range(130):
-    #         msg = self._xor(encoded_msg, key)
-    #         try:
-    #             n, d = msg.split('/')
-    #             if n.isdigit() and d.isdigit():
-    #                 return key
-    #         except ValueError:
-    #             pass
-    #     raise ValueError('Key not found !')
 
     @staticmethod
     def _get_values(data: str, value: str) -> List:
@@ -157,7 +205,6 @@ class ParserBet365:
 
         TK = data.split(';')[1][3:]
         key = ord(TK[0]) ^ ord(TK[1])
-        # key = self._guess_xor_key(values[0])
 
         for obfuscated_odd in values:
             # Event exists but no odds are available
@@ -188,16 +235,15 @@ class ParserBet365:
 
 
 class ApiBet365(ApiBase, ParserBet365):
-    """ The ApiBase implementation of bet365.com """
+    """The ApiBase implementation of bet365.com
+    In order to init a new Session for bet365 cookies and headers are required.
+    """
 
     def __init__(self):
         self.name = 'bet365'
         self.session = requests.Session()
-        self._token = ''
-        self._token_expires = 0
 
-    def competition(self, url: str) -> str:
-        # e.g. https://www.bet365.it/#/AC/B1/C1/D7/E40/F4/G97452824/H3/
+    def url_to_competition(self, url: str) -> str:
         re_bet365 = re.compile(
             r'https?://www\.bet365\.\w{2,3}/#/'
             r'AC/B1/C1/D7/E40/F4/G[0-9]+/H3/?'
@@ -208,90 +254,68 @@ class ApiBet365(ApiBase, ParserBet365):
             msg = f'Cannot parse {url}'
             raise ValueError(msg)
 
-    # old this url parser is deprecated
-    # def competition(self, url: str) -> str:
-    #     re_bet365 = re.compile(
-    #         r'https?://www\.bet365\.\w{2,3}/#/'
-    #         r'[0-9a-fA-F/]*/D[0-9]+/[0-9a-fA-F]{9}/[0-9a-fA-F]{2}/?'
-    #     )
-    #     if re_bet365.match(url):
-    #         return url.split('/')[8]
-    #     else:
-    #         msg = f'Cannot parse {url}'
-    #         raise ValueError(msg)
+    def competitions(self, base_url='https://www.bet365.com/#') -> str:
+        table = {}
+        table_country = self._request(
+            '#AM#B1#C1#D7#E40#F4#G96703929#H3#Z^1#Y^1_7_40_4_96703929#S1#',
+        ).split('|')
+
+        for row in table_country[2:-1]:
+            country = row.split('NA=')[1].split(';')[0]
+            country_link = row.split('PD=')[1].split(';')[0]
+
+            table[country] = {}
+            table_league = self._request(country_link).split('|')
+            for row2 in table_league[3:-1]:
+                league = row2.split('NA=')[1].split(';')[0]
+                league_link = row2.split('PD=')[1].split(';')[0]
+                link = base_url + league_link.replace('#', '/')
+                table[country][league] = link
+
+        return table
 
     def requests(self, competition: str) -> Tuple[Dict]:
-        config_url = 'https://www.bet365.it/defaultapi/sports-configuration'
-        cookies = {'aps03': 'ct=97&lng=6'}
-        headers = {
-            'Connection': 'keep-alive',
-            'Origin': 'https://www.bet365.it',
-            'DNT': '1',
-            'Accept': '*/*',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-Mode': 'cors',
-            'Referer': 'https://www.bet365.it/',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9,it;q=0.8,la;q=0.7',
-            'User-Agent': (
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/79.0.3945.117 Safari/537.36'
-            ),
-            'X-Net-Sync-Term': self.token,
-        }
-        self.session.headers.update(headers)
-        self.session.get(config_url, cookies=cookies)
-
         return {
-            'full_time_result': self._request(competition, 40),
-            'both_teams_to_score': self._request(competition, 10150),
-            'double_chance': self._request(competition, 50401),
-            'draw_no_bet': self._request(competition, 10544),
-            # old
-            # 'full_time_result': self._request(competition, 13),
-            # 'both_teams_to_score': self._request(competition, 170),
-            # 'double_chance': self._request(competition, 195),
+            'full_time_result': self._request(
+                f'#AC#B1#C1#D7#E40#F4#{competition}#H3#'
+            ),
+            'both_teams_to_score': self._request(
+                f'#AC#B1#C1#D7#E10150#F4#{competition}#H3#'
+            ),
+            'double_chance': self._request(
+                f'#AC#B1#C1#D7#E50401#F4#{competition}#H3#'
+            ),
+            'draw_no_bet': self._request(
+                f'#AC#B1#C1#D7#E10544#F4#{competition}#H3#'
+            ),
+            'asian_handicap': (
+                self._request(f'#AC#B1#C1#D7#E938#F4#{competition}#H3#'),
+                self._request(f'#AC#B1#C1#D7#E50138#F4#{competition}#H3#'),
+            ),
+            'under_over': self._request(
+                f'#AC#B1#C1#D7#E981#F4#{competition}#H3#'
+            ),
         }
 
     # Auxiliary methods
 
-    @property
-    def token(self):
-        if self._token_expires > datetime.now().timestamp():
-            return self._token
-        else:
-            loop = asyncio.get_event_loop()
-            self._token = loop.run_until_complete(self._get_token())
-            self._token_expires = datetime.now().timestamp() + 600
-            return self._token
+    def _request(self, pd: str) -> str:
+        """Make the single request using the active session.
+        The pd is a string that contains information about competition
+        and market (i.e. 'full_time_result', 'double_chance', ...)
+        """
 
-    async def _get_token(self):
-        browser = await launch(
-            headless=True,
-            args=['--disable-blink-features=AutomationControlled'],
-        )
-        page = (await browser.pages())[0]
-        await page.setUserAgent(
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36'
-        )
-        await page.goto("https://www.bet365.com")
-        request = await page.waitForRequest(lambda r: 'SportsBook' in r.url)
-        await browser.close()
-        return request.headers['x-net-sync-term']
-
-    def _request(self, competition: str, category: int) -> str:
-        """ Make the single request using the active session """
+        response = requests.get('http://localhost:5000/bet365').json()
+        self.session.headers.update(response['headers'])
+        for cookie in response['cookies']:
+            self.session.cookies.set(cookie['name'], cookie['value'])
 
         url = 'https://www.bet365.it/SportsBook.API/web'
         params = (
-            ('lid', '1'),
+            ('lid', '1'),  # language id, 1 == english
             ('zid', '0'),
-            # old ('pd', f'#AC#B1#C1#D{category}#{competition}#F2#'),
-            ('pd', f'#AC#B1#C1#D7#E{category}#F4#{competition}#H3#'),
+            ('pd', pd),
             ('cid', '97'),
             ('ctid', '97'),
         )
-
         return self.session.get(url, params=params).text
