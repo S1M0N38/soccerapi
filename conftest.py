@@ -56,8 +56,7 @@ def generate_888sport_urls():
 
 
 def generate_bet365_urls():
-    response = requests.get('http://localhost:5000/bet365').json()
-    api = ApiBet365(response['headers'], response['cookies'])
+    api = ApiBet365()
     competitions = api.competitions()
     return [
         competitions['Italy'].get('Italy Serie A'),
