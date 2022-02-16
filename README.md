@@ -1,3 +1,8 @@
+> :warning:
+> At the moment this project is not actively developed. 
+> Due to bookmakers' sites update some functionality may be broken.
+> :warning:
+
 # soccerapi
 
 [![PyPI version](https://badge.fury.io/py/soccerapi.svg)](https://badge.fury.io/py/soccerapi)
